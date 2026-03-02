@@ -13,7 +13,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   TrendingUp, Building2, Palette, MessageSquare, Globe, Users, Briefcase, Target,
   ChevronRight, AlertTriangle, CheckCircle2, Copy, Check, ExternalLink, Lightbulb,
-  Layers, BarChart3, Zap, ArrowRight, Info
+  Layers, BarChart3, Zap, ArrowRight, Info, Fingerprint, Map, Rocket, Package,
+  ClipboardList, Radar, Search, RefreshCw, Megaphone, Star, BookOpen, DollarSign,
+  Handshake, Brain, Heart, Newspaper, Clock, CircleDot, PlayCircle
 } from "lucide-react";
 import { brandData, LOGO_URLS } from "@/data/brandData";
 
@@ -971,102 +973,362 @@ function ServicesTab() {
   );
 }
 
-// ── Tab: Audience ─────────────────────────────────────────────────────────────
+// ── Tab: Audience (Expanded) ──────────────────────────────────────────────────
 
 function AudienceTab() {
-  const [expanded, setExpanded] = useState<number | null>(0);
-  const a = brandData.audience;
+  const [sub, setSub] = useState("overview");
+  const [expandedFounder, setExpandedFounder] = useState<number | null>(0);
+  const [expandedEco, setExpandedEco] = useState<number | null>(null);
+  const a = brandData.audienceExpanded;
   const priorityColors: Record<string, string> = {
     Highest: "bg-green-100 text-green-800 border-green-300",
     High: "bg-blue-100 text-blue-800 border-blue-300",
     Medium: "bg-amber-100 text-amber-800 border-amber-300",
+  };
+  const stageIcons: Record<string, React.ReactNode> = {
+    Highest: <Star size={12} className="text-green-700" />,
+    High: <TrendingUp size={12} className="text-blue-700" />,
+    Medium: <Info size={12} className="text-amber-700" />,
   };
 
   return (
     <div className="space-y-6 tab-content-enter">
       <KeyTakeaway text={a.keyTakeaway} />
 
-      {/* ICP */}
-      <SectionCard>
-        <SectionHeader icon={<Target size={16} />} title={a.icp.title} subtitle="The primary target for all StartSuite marketing and sales" />
-        <div className="p-4 rounded-xl border border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50 mb-4">
-          <p className="text-sm text-foreground leading-relaxed">{a.icp.description}</p>
-        </div>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">ICP Signals — When to Reach Out</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {a.icp.signals.map((signal, i) => (
-              <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg border border-border">
-                <CheckCircle2 size={13} className="text-green-600 mt-0.5 shrink-0" />
-                <p className="text-xs text-foreground">{signal}</p>
+      <SubTabNav
+        tabs={[
+          { id: "overview", label: "Overview" },
+          { id: "founders", label: "Founder Segments" },
+          { id: "ecosystem", label: "Ecosystem Segments" },
+          { id: "personas", label: "Personas" },
+          { id: "psychographics", label: "Psychographics" },
+        ]}
+        active={sub}
+        onChange={setSub}
+      />
+
+      {sub === "overview" && (
+        <div className="space-y-5">
+          {/* ICP */}
+          <SectionCard>
+            <SectionHeader icon={<Target size={16} />} title="Ideal Client Profile" subtitle="The primary target for all StartSuite marketing and sales" />
+            <div className="p-4 rounded-xl border border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50 mb-5">
+              <p className="text-sm text-foreground leading-relaxed">{brandData.audience.icp.description}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">ICP Signals — When to Reach Out</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {brandData.audience.icp.signals.map((signal, i) => (
+                  <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg border border-border">
+                    <CheckCircle2 size={13} className="text-green-600 mt-0.5 shrink-0" />
+                    <p className="text-xs text-foreground">{signal}</p>
+                  </div>
+                ))}
               </div>
+            </div>
+          </SectionCard>
+
+          {/* TAM/SAM/OAM */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: "TAM", sub: "Total Addressable Market", value: a.tam, color: "border-purple-200 bg-purple-50" },
+              { label: "SAM", sub: "Serviceable Addressable Market", value: a.sam, color: "border-blue-200 bg-blue-50" },
+              { label: "OAM", sub: "Obtainable Addressable Market", value: a.oam, color: "border-green-200 bg-green-50" },
+            ].map((m, i) => (
+              <SectionCard key={i} className={`border ${m.color}`}>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">{m.label} — {m.sub}</p>
+                <p className="font-display text-base font-bold text-foreground leading-snug">{m.value}</p>
+              </SectionCard>
             ))}
           </div>
-        </div>
-      </SectionCard>
 
-      {/* Audience segments */}
-      <div className="space-y-3">
-        {a.primarySegments.map((seg, i) => (
-          <div key={i} className="rounded-xl border border-border overflow-hidden card-lift">
-            <button
-              onClick={() => setExpanded(expanded === i ? null : i)}
-              className="w-full flex items-center justify-between gap-4 p-5 bg-card hover:bg-muted/30 transition-colors text-left"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-full ss-gradient flex items-center justify-center text-white font-display font-bold text-lg shrink-0">
-                  {seg.name[0]}
-                </div>
-                <div className="min-w-0">
-                  <p className="font-display font-semibold text-foreground">{seg.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{seg.demographics}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <Badge variant="outline" className={`text-xs ${priorityColors[seg.priority]}`}>{seg.priority}</Badge>
-                <ChevronRight size={16} className={`text-muted-foreground transition-transform ${expanded === i ? "rotate-90" : ""}`} />
-              </div>
-            </button>
-            {expanded === i && (
-              <div className="p-5 border-t border-border bg-card space-y-5">
-                <p className="text-sm text-muted-foreground leading-relaxed">{seg.description}</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Demographics</p>
-                    <p className="text-xs text-foreground leading-relaxed">{seg.demographics}</p>
+          {/* Segment scoring table */}
+          <SectionCard>
+            <SectionHeader icon={<BarChart3 size={16} />} title="Segment Priority Scoring" subtitle="Revenue potential, strategic fit, product fit, acquisition ease (1–5 each)" />
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 pr-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Segment</th>
+                    <th className="text-center py-2 px-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Revenue</th>
+                    <th className="text-center py-2 px-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Strategic</th>
+                    <th className="text-center py-2 px-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Product Fit</th>
+                    <th className="text-center py-2 px-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Acquisition</th>
+                    <th className="text-center py-2 px-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Total</th>
+                    <th className="text-center py-2 pl-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Priority</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...a.founderSegments, ...a.ecosystemSegments].map((seg, i) => (
+                    <tr key={i} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                      <td className="py-3 pr-4">
+                        <p className="font-medium text-foreground text-xs">{seg.name}</p>
+                        <p className="text-xs text-muted-foreground">{seg.track}</p>
+                      </td>
+                      <td className="text-center py-3 px-2 text-xs font-mono text-foreground">{seg.score.revenue}/5</td>
+                      <td className="text-center py-3 px-2 text-xs font-mono text-foreground">{seg.score.strategic}/5</td>
+                      <td className="text-center py-3 px-2 text-xs font-mono text-foreground">{seg.score.productFit}/5</td>
+                      <td className="text-center py-3 px-2 text-xs font-mono text-foreground">{seg.score.acquisition}/5</td>
+                      <td className="text-center py-3 px-2">
+                        <span className="font-display font-bold text-purple-700">{seg.score.total}/20</span>
+                      </td>
+                      <td className="text-center py-3 pl-2">
+                        <Badge variant="outline" className={`text-xs ${priorityColors[seg.priority]}`}>{seg.priority}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {sub === "founders" && (
+        <div className="space-y-3">
+          {a.founderSegments.map((seg, i) => (
+            <div key={i} className="rounded-xl border border-border overflow-hidden card-lift">
+              <button
+                onClick={() => setExpandedFounder(expandedFounder === i ? null : i)}
+                className="w-full flex items-center justify-between gap-4 p-5 bg-card hover:bg-muted/30 transition-colors text-left"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full ss-gradient flex items-center justify-center text-white font-display font-bold text-lg shrink-0">{seg.name[0]}</div>
+                  <div className="min-w-0">
+                    <p className="font-display font-semibold text-foreground">{seg.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{seg.demographics}</p>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Psychographics</p>
-                    <p className="text-xs text-foreground leading-relaxed">{seg.psychographics}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <Badge variant="outline" className={`text-xs ${priorityColors[seg.priority]}`}>{stageIcons[seg.priority]}<span className="ml-1">{seg.priority}</span></Badge>
+                  <ChevronRight size={16} className={`text-muted-foreground transition-transform ${expandedFounder === i ? "rotate-90" : ""}`} />
+                </div>
+              </button>
+              {expandedFounder === i && (
+                <div className="p-5 border-t border-border bg-card space-y-5">
+                  <p className="text-sm text-muted-foreground leading-relaxed">{seg.description}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Demographics</p>
+                      <p className="text-xs text-foreground leading-relaxed">{seg.demographics}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Psychographics</p>
+                      <p className="text-xs text-foreground leading-relaxed">{seg.psychographics}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Pain Points</p>
-                    <ul className="space-y-1">
-                      {seg.painPoints.map((p, j) => (
-                        <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
-                          <AlertTriangle size={11} className="text-amber-600 mt-0.5 shrink-0" />
-                          {p}
-                        </li>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">Pain Points</p>
+                      <ul className="space-y-1.5">
+                        {seg.painPoints.map((p, j) => (
+                          <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                            <AlertTriangle size={11} className="text-amber-600 mt-0.5 shrink-0" />{p}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-2">What They Need</p>
+                      <ul className="space-y-1.5">
+                        {seg.needs.map((n, j) => (
+                          <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                            <CheckCircle2 size={11} className="text-green-600 mt-0.5 shrink-0" />{n}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-purple-700 mb-2">Acquisition Channels</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {seg.acquisitionChannels.map((ch, j) => (
+                        <Badge key={j} variant="outline" className="text-xs bg-white">{ch}</Badge>
                       ))}
-                    </ul>
+                    </div>
+                  </div>
+                  <blockquote className="border-l-4 border-purple-400 pl-4 italic text-sm text-muted-foreground">"{seg.quote}"</blockquote>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {sub === "ecosystem" && (
+        <div className="space-y-3">
+          {a.ecosystemSegments.map((seg, i) => (
+            <div key={i} className="rounded-xl border border-border overflow-hidden card-lift">
+              <button
+                onClick={() => setExpandedEco(expandedEco === i ? null : i)}
+                className="w-full flex items-center justify-between gap-4 p-5 bg-card hover:bg-muted/30 transition-colors text-left"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full ss-gradient flex items-center justify-center text-white font-display font-bold text-lg shrink-0">{seg.name[0]}</div>
+                  <div className="min-w-0">
+                    <p className="font-display font-semibold text-foreground">{seg.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{seg.demographics}</p>
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-green-50 border border-green-200">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-2">What They Need</p>
+                <div className="flex items-center gap-3 shrink-0">
+                  <Badge variant="outline" className={`text-xs ${priorityColors[seg.priority]}`}>{seg.priority}</Badge>
+                  <ChevronRight size={16} className={`text-muted-foreground transition-transform ${expandedEco === i ? "rotate-90" : ""}`} />
+                </div>
+              </button>
+              {expandedEco === i && (
+                <div className="p-5 border-t border-border bg-card space-y-5">
+                  <p className="text-sm text-muted-foreground leading-relaxed">{seg.description}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">Pain Points</p>
+                      <ul className="space-y-1.5">
+                        {seg.painPoints.map((p, j) => (
+                          <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                            <AlertTriangle size={11} className="text-amber-600 mt-0.5 shrink-0" />{p}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-2">What They Need</p>
+                      <ul className="space-y-1.5">
+                        {seg.needs.map((n, j) => (
+                          <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                            <CheckCircle2 size={11} className="text-green-600 mt-0.5 shrink-0" />{n}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-purple-700 mb-2">Acquisition Channels</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {seg.acquisitionChannels.map((ch, j) => (
+                        <Badge key={j} variant="outline" className="text-xs bg-white">{ch}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <blockquote className="border-l-4 border-purple-400 pl-4 italic text-sm text-muted-foreground">"{seg.quote}"</blockquote>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {sub === "personas" && (
+        <div className="space-y-6">
+          {a.personas.map((persona, i) => (
+            <SectionCard key={i} className="card-lift">
+              <div className="flex items-start gap-4 mb-5">
+                <div className="w-14 h-14 rounded-2xl ss-gradient flex items-center justify-center text-white font-display font-bold text-2xl shrink-0">{persona.name[0]}</div>
+                <div>
+                  <h3 className="font-display text-lg font-bold text-foreground">{persona.name}</h3>
+                  <p className="text-sm font-medium text-purple-700">{persona.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{persona.demographics}</p>
+                </div>
+              </div>
+              <blockquote className="border-l-4 border-purple-400 pl-4 italic text-sm text-foreground mb-5">"{persona.quote}"</blockquote>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Story</p>
+                  <p className="text-xs text-foreground leading-relaxed">{persona.story}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">A Day in the Life</p>
+                  <p className="text-xs text-foreground leading-relaxed">{"dayInTheLife" in persona ? persona.dayInTheLife : "—"}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-blue-700 mb-2">Goals</p>
                   <ul className="space-y-1.5">
-                    {seg.needs.map((n, j) => (
-                      <li key={j} className="flex items-start gap-2 text-xs text-foreground">
-                        <CheckCircle2 size={12} className="text-green-600 mt-0.5 shrink-0" />
-                        {n}
+                    {persona.goals.map((g, j) => (
+                      <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                        <Target size={11} className="text-blue-600 mt-0.5 shrink-0" />{g}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">Challenges</p>
+                  <ul className="space-y-1.5">
+                    {persona.challenges.map((c, j) => (
+                      <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                        <AlertTriangle size={11} className="text-amber-600 mt-0.5 shrink-0" />{c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-purple-700 mb-2">Motivations</p>
+                  <ul className="space-y-1.5">
+                    {persona.motivations.map((m, j) => (
+                      <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                        <Heart size={11} className="text-purple-600 mt-0.5 shrink-0" />{m}
                       </li>
                     ))}
                   </ul>
                 </div>
               </div>
-            )}
+              <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200">
+                <p className="text-xs font-semibold uppercase tracking-widest text-purple-700 mb-2">How StartSuite Helps</p>
+                <p className="text-sm text-foreground leading-relaxed">{persona.howStartSuiteHelps}</p>
+              </div>
+            </SectionCard>
+          ))}
+        </div>
+      )}
+
+      {sub === "psychographics" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<Brain size={16} />} title="Psychographic Profile" subtitle={a.psychographics.keyTakeaway} />
+          </SectionCard>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <SectionCard>
+              <p className="text-xs font-semibold uppercase tracking-widest text-purple-700 mb-3">Core Values</p>
+              <ul className="space-y-2">
+                {a.psychographics.values.map((v, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <Star size={13} className="text-purple-600 mt-0.5 shrink-0" />{v}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+            <SectionCard>
+              <p className="text-xs font-semibold uppercase tracking-widest text-blue-700 mb-3">Core Beliefs</p>
+              <ul className="space-y-2">
+                {a.psychographics.beliefs.map((b, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <Lightbulb size={13} className="text-blue-600 mt-0.5 shrink-0" />{b}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+            <SectionCard>
+              <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-3">Core Fears</p>
+              <ul className="space-y-2">
+                {a.psychographics.fears.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <AlertTriangle size={13} className="text-amber-600 mt-0.5 shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+            <SectionCard>
+              <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-3">Media Habits</p>
+              <ul className="space-y-2">
+                {a.psychographics.mediaHabits.map((m, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <Newspaper size={13} className="text-green-600 mt-0.5 shrink-0" />{m}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1074,69 +1336,25 @@ function AudienceTab() {
 // ── Tab: Competitive ──────────────────────────────────────────────────────────
 
 function CompetitiveTab() {
+  const [sub, setSub] = useState("landscape");
   const comp = brandData.competitive;
 
   return (
     <div className="space-y-6 tab-content-enter">
       <KeyTakeaway text={comp.keyTakeaway} />
 
-      {/* Positioning matrix visual */}
-      <SectionCard>
-        <SectionHeader icon={<BarChart3 size={16} />} title="Positioning Matrix" subtitle="Speed vs. Strategic Depth — where StartSuite sits" />
-        <div className="relative w-full aspect-square max-w-lg mx-auto bg-muted/30 rounded-xl border border-border overflow-hidden">
-          {/* Axes */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="absolute w-full h-px bg-border top-1/2" />
-            <div className="absolute h-full w-px bg-border left-1/2" />
-          </div>
-          {/* Axis labels */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground font-medium">Fast →</div>
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground font-medium">← Slow</div>
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium" style={{ writingMode: "vertical-rl", transform: "translateY(-50%) rotate(180deg)" }}>Strategy + Execution ↑</div>
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium" style={{ writingMode: "vertical-rl", transform: "translateY(-50%) rotate(180deg)" }}>↓ Execution Only</div>
+      <SubTabNav
+        tabs={[
+          { id: "landscape", label: "Market Landscape" },
+          { id: "matrix", label: "Positioning Matrix" },
+          { id: "swot", label: "SWOT" },
+          { id: "recommendations", label: "Recommendations" },
+        ]}
+        active={sub}
+        onChange={setSub}
+      />
 
-          {/* Quadrant labels */}
-          <div className="absolute top-4 left-4 text-xs text-muted-foreground/50 font-medium">Slow + Strategic</div>
-          <div className="absolute top-4 right-4 text-xs text-muted-foreground/50 font-medium text-right">Fast + Strategic</div>
-          <div className="absolute bottom-8 left-4 text-xs text-muted-foreground/50 font-medium">Slow + Execution</div>
-          <div className="absolute bottom-8 right-4 text-xs text-muted-foreground/50 font-medium text-right">Fast + Execution</div>
-
-          {/* Competitor dots */}
-          {comp.positioningMatrix.competitors.map((c, i) => {
-            const isStartSuite = c.name === "StartSuite";
-            const left = `${c.x}%`;
-            const top = `${100 - c.y}%`;
-            return (
-              <TooltipProvider key={i}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer ${isStartSuite ? "z-10" : "z-0"}`}
-                      style={{ left, top }}
-                    >
-                      <div className={`rounded-full flex items-center justify-center font-bold text-xs shadow-md transition-transform hover:scale-110 ${
-                        isStartSuite
-                          ? "w-10 h-10 ss-gradient text-white"
-                          : "w-7 h-7 bg-white border-2 border-muted-foreground/30 text-muted-foreground"
-                      }`}>
-                        {isStartSuite ? "SS" : c.name[0]}
-                      </div>
-                      {isStartSuite && (
-                        <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-semibold text-purple-700">StartSuite</div>
-                      )}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="font-semibold">{c.name}</p>
-                    <p className="text-xs text-muted-foreground">{c.description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            );
-          })}
-        </div>
-        <p className="text-xs text-muted-foreground text-center mt-3">Hover over dots for details. StartSuite occupies the fast + strategic white space.</p>
-      </SectionCard>
+      {sub === "landscape" && (<div className="space-y-4">
 
       {/* Competitive categories */}
       <div className="space-y-4">
@@ -1191,11 +1409,123 @@ function CompetitiveTab() {
           <p className="text-sm text-foreground leading-relaxed">{comp.whitespace}</p>
         </div>
       </SectionCard>
+      </div>)}
+
+      {sub === "matrix" && (
+        <SectionCard>
+          <SectionHeader icon={<BarChart3 size={16} />} title="Positioning Matrix" subtitle="Speed vs. Strategic Depth — where StartSuite sits" />
+          <div className="relative w-full aspect-square max-w-lg mx-auto bg-muted/30 rounded-xl border border-border overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute w-full h-px bg-border top-1/2" />
+              <div className="absolute h-full w-px bg-border left-1/2" />
+            </div>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground font-medium">Fast →</div>
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground font-medium">← Slow</div>
+            <div className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium" style={{ writingMode: "vertical-rl", transform: "translateY(-50%) rotate(180deg)" }}>Strategy + Execution ↑</div>
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium" style={{ writingMode: "vertical-rl", transform: "translateY(-50%) rotate(180deg)" }}>↓ Execution Only</div>
+            <div className="absolute top-4 left-4 text-xs text-muted-foreground/50 font-medium">Slow + Strategic</div>
+            <div className="absolute top-4 right-4 text-xs text-muted-foreground/50 font-medium text-right">Fast + Strategic</div>
+            <div className="absolute bottom-8 left-4 text-xs text-muted-foreground/50 font-medium">Slow + Execution</div>
+            <div className="absolute bottom-8 right-4 text-xs text-muted-foreground/50 font-medium text-right">Fast + Execution</div>
+            {comp.positioningMatrix.competitors.map((c, i) => {
+              const isStartSuite = c.name === "StartSuite";
+              const left = `${c.x}%`;
+              const top = `${100 - c.y}%`;
+              return (
+                <TooltipProvider key={i}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer ${isStartSuite ? "z-10" : "z-0"}`} style={{ left, top }}>
+                        <div className={`rounded-full flex items-center justify-center font-bold text-xs shadow-md transition-transform hover:scale-110 ${
+                          isStartSuite ? "w-10 h-10 ss-gradient text-white" : "w-7 h-7 bg-white border-2 border-muted-foreground/30 text-muted-foreground"
+                        }`}>
+                          {isStartSuite ? "SS" : c.name[0]}
+                        </div>
+                        {isStartSuite && (
+                          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-semibold text-purple-700">StartSuite</div>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-semibold">{c.name}</p>
+                      <p className="text-xs text-muted-foreground">{c.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground text-center mt-3">Hover over dots for details. StartSuite occupies the fast + strategic white space.</p>
+        </SectionCard>
+      )}
+
+      {sub === "swot" && (
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <SectionCard className="border-green-200">
+              <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-3">Strengths</p>
+              <ul className="space-y-2">
+                {comp.swot.strengths.map((s, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <CheckCircle2 size={13} className="text-green-600 mt-0.5 shrink-0" />{s}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+            <SectionCard className="border-amber-200">
+              <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-3">Weaknesses</p>
+              <ul className="space-y-2">
+                {comp.swot.weaknesses.map((w, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <AlertTriangle size={13} className="text-amber-600 mt-0.5 shrink-0" />{w}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+            <SectionCard className="border-blue-200">
+              <p className="text-xs font-semibold uppercase tracking-widest text-blue-700 mb-3">Opportunities</p>
+              <ul className="space-y-2">
+                {comp.swot.opportunities.map((o, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <Zap size={13} className="text-blue-600 mt-0.5 shrink-0" />{o}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+            <SectionCard className="border-red-200">
+              <p className="text-xs font-semibold uppercase tracking-widest text-red-700 mb-3">Threats</p>
+              <ul className="space-y-2">
+                {comp.swot.threats.map((t, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <AlertTriangle size={13} className="text-red-600 mt-0.5 shrink-0" />{t}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </div>
+        </div>
+      )}
+
+      {sub === "recommendations" && (
+        <div className="space-y-4">
+          {comp.recommendations.map((rec, i) => (
+            <SectionCard key={i} className="card-lift">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg ss-gradient flex items-center justify-center text-white font-bold text-sm shrink-0">{i + 1}</div>
+                <div>
+                  <h3 className="font-display text-base font-semibold text-foreground mb-1">{rec.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{rec.description}</p>
+                </div>
+              </div>
+            </SectionCard>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-// ── Tab: Digital ──────────────────────────────────────────────────────────────
+// ── Tab: Digital (Expanded) ──────────────────────────────────────────────────
 
 function DigitalTab() {
   const [sub, setSub] = useState("website");
@@ -1210,6 +1540,8 @@ function DigitalTab() {
           { id: "website", label: "Website" },
           { id: "social", label: "Social" },
           { id: "content", label: "Content Strategy" },
+          { id: "paid", label: "Paid Media" },
+          { id: "partnerships", label: "Partnerships" },
         ]}
         active={sub}
         onChange={setSub}
@@ -1297,6 +1629,663 @@ function DigitalTab() {
           </SectionCard>
         </div>
       )}
+
+      {sub === "paid" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<DollarSign size={16} />} title="Paid Media Strategy" subtitle={d.paidMedia.keyTakeaway} />
+          </SectionCard>
+          {d.paidMedia.channels.map((ch, i) => (
+            <SectionCard key={i} className="card-lift">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="font-display text-base font-semibold text-foreground">{ch.channel}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">{ch.objective}</p>
+                </div>
+                <Badge variant="outline" className={`text-xs shrink-0 ${
+                  ch.status === "Phase 1" ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                }`}>{ch.status}</Badge>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Targeting</p>
+                  <p className="text-xs text-foreground leading-relaxed">{ch.targeting}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Formats</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ch.formats.map((f, j) => (
+                      <Badge key={j} variant="outline" className="text-xs">{f}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-purple-50 border border-purple-200">
+                  <p className="text-xs text-foreground leading-relaxed">{ch.notes}</p>
+                </div>
+              </div>
+            </SectionCard>
+          ))}
+        </div>
+      )}
+
+      {sub === "partnerships" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<Handshake size={16} />} title="Partnership Strategy" subtitle={d.partnerships.keyTakeaway} />
+          </SectionCard>
+          {d.partnerships.tiers.map((tier, i) => (
+            <SectionCard key={i} className="card-lift">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <h3 className="font-display text-base font-semibold text-foreground">{tier.tier}</h3>
+                <Badge variant="outline" className={`text-xs shrink-0 ${
+                  tier.status === "Active" ? "bg-green-50 text-green-700 border-green-200" : "bg-blue-50 text-blue-700 border-blue-200"
+                }`}>{tier.status}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-3">{tier.description}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {tier.examples.map((ex, j) => (
+                  <Badge key={j} variant="outline" className="text-xs">{ex}</Badge>
+                ))}
+              </div>
+            </SectionCard>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Tab: Identity ─────────────────────────────────────────────────────────────
+
+function IdentityTab() {
+  const [sub, setSub] = useState("core");
+  const id = brandData.identity;
+
+  return (
+    <div className="space-y-6 tab-content-enter">
+      <KeyTakeaway text={id.keyTakeaway} />
+
+      <SubTabNav
+        tabs={[
+          { id: "core", label: "Core Identity" },
+          { id: "perception", label: "Audience Perception" },
+          { id: "personality", label: "Brand Personality" },
+          { id: "gaps", label: "Messaging Gaps" },
+        ]}
+        active={sub}
+        onChange={setSub}
+      />
+
+      {sub === "core" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<Fingerprint size={16} />} title="Tagline" />
+            <div className="p-5 rounded-xl ss-gradient text-white text-center">
+              <p className="font-display text-2xl font-bold tracking-tight">{id.tagline}</p>
+            </div>
+          </SectionCard>
+
+          <SectionCard>
+            <SectionHeader icon={<Star size={16} />} title="Brand Characteristics" subtitle="The defining attributes of the StartSuite brand" />
+            <div className="flex flex-wrap gap-2">
+              {id.characteristics.map((c, i) => (
+                <span key={i} className="px-3 py-1.5 rounded-full text-sm font-medium bg-purple-50 text-purple-800 border border-purple-200">{c}</span>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard>
+            <SectionHeader icon={<MessageSquare size={16} />} title="Approved Key Phrases" subtitle="Use these verbatim in all brand communications" />
+            <div className="space-y-2">
+              {id.keyPhrases.map((phrase, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-purple-300 transition-colors">
+                  <div className="w-5 h-5 rounded-full ss-gradient flex items-center justify-center text-white text-xs font-bold shrink-0">{i + 1}</div>
+                  <p className="text-sm font-medium text-foreground italic">"{phrase}"</p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard>
+            <SectionHeader icon={<Layers size={16} />} title="Messaging Hierarchy" subtitle="The order in which StartSuite communicates its value" />
+            <div className="space-y-3">
+              {id.messagingHierarchy.map((msg, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-lg ss-gradient flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5">{i + 1}</div>
+                  <div className="flex-1 p-3 rounded-xl border border-border">
+                    <p className="text-sm text-foreground leading-relaxed">{msg}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard>
+            <SectionHeader icon={<Target size={16} />} title="Competitive Positioning Statement" />
+            <blockquote className="border-l-4 border-purple-500 pl-5 py-2">
+              <p className="text-sm text-foreground leading-relaxed italic">{id.competitivePositioningStatement}</p>
+            </blockquote>
+          </SectionCard>
+        </div>
+      )}
+
+      {sub === "perception" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<Radar size={16} />} title="First Impression" subtitle="What a founder experiences in the first 10 seconds on start-suite.com" />
+            <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200">
+              <p className="text-sm text-foreground leading-relaxed">{id.audiencePerception.firstImpression}</p>
+            </div>
+          </SectionCard>
+          <SectionCard>
+            <SectionHeader icon={<Search size={16} />} title="Key Questions in the Founder's Mind" subtitle="What they're asking that the brand needs to answer" />
+            <div className="space-y-2">
+              {id.audiencePerception.keyQuestions.map((q, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border">
+                  <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                    <span className="text-amber-700 text-xs font-bold">?</span>
+                  </div>
+                  <p className="text-sm text-foreground">{q}</p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {sub === "personality" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<Brain size={16} />} title={`Brand Archetype: ${id.brandPersonality.archetype}`} />
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">{id.brandPersonality.archetypeDescription}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-purple-700 mb-3">If StartSuite Were a Person</p>
+                <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
+                  <p className="text-sm text-foreground leading-relaxed">{id.brandPersonality.ifBrandWereAPerson}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-red-700 mb-3">StartSuite Is NOT Like</p>
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200">
+                  <p className="text-sm text-foreground leading-relaxed">{id.brandPersonality.notLike}</p>
+                </div>
+              </div>
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {sub === "gaps" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<AlertTriangle size={16} />} title="Messaging Gaps" subtitle="Current gaps in the StartSuite brand narrative that need to be addressed" />
+            <div className="space-y-3">
+              {id.messagingGaps.map((gap, i) => (
+                <div key={i} className="flex items-start gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50">
+                  <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" />
+                  <p className="text-sm text-foreground leading-relaxed">{gap}</p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Tab: Go-to-Market ─────────────────────────────────────────────────────────
+
+function GTMTab() {
+  const [sub, setSub] = useState("overview");
+  const g = brandData.gtm;
+
+  return (
+    <div className="space-y-6 tab-content-enter">
+      <KeyTakeaway text={g.keyTakeaway} />
+
+      <SubTabNav
+        tabs={[
+          { id: "overview", label: "Overview" },
+          { id: "pillars", label: "GTM Pillars" },
+          { id: "channels", label: "Channel Mix" },
+          { id: "timeline", label: "Launch Timeline" },
+          { id: "resources", label: "Resources" },
+        ]}
+        active={sub}
+        onChange={setSub}
+      />
+
+      {sub === "overview" && (
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: "Current Stage", value: g.currentStage, color: "border-purple-200 bg-purple-50" },
+              { label: "Primary Growth Motion", value: g.primaryGrowthMotion, color: "border-blue-200 bg-blue-50" },
+              { label: "GTM Fit", value: g.gtmFitScore, color: "border-green-200 bg-green-50" },
+            ].map((item, i) => (
+              <SectionCard key={i} className={`border ${item.color}`}>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">{item.label}</p>
+                <p className="text-sm font-semibold text-foreground leading-snug">{item.value}</p>
+              </SectionCard>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <SectionCard>
+              <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-3">GTM Strengths</p>
+              <ul className="space-y-2">
+                {g.strengths.map((s, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <CheckCircle2 size={13} className="text-green-600 mt-0.5 shrink-0" />{s}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+            <SectionCard>
+              <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-3">GTM Gaps</p>
+              <ul className="space-y-2">
+                {g.gaps.map((gap, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <AlertTriangle size={13} className="text-amber-600 mt-0.5 shrink-0" />{gap}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </div>
+        </div>
+      )}
+
+      {sub === "pillars" && (
+        <div className="space-y-4">
+          {g.pillars.map((pillar, i) => (
+            <SectionCard key={i} className="card-lift">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg ss-gradient flex items-center justify-center text-white font-bold text-sm shrink-0">{i + 1}</div>
+                <div>
+                  <h3 className="font-display text-base font-semibold text-foreground mb-1">{pillar.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{pillar.description}</p>
+                </div>
+              </div>
+            </SectionCard>
+          ))}
+        </div>
+      )}
+
+      {sub === "channels" && (
+        <SectionCard>
+          <SectionHeader icon={<BarChart3 size={16} />} title="Channel Mix" subtitle="Investment level and phase for each acquisition channel" />
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-2 pr-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Channel</th>
+                  <th className="text-left py-2 px-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Investment</th>
+                  <th className="text-center py-2 pl-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Phase</th>
+                </tr>
+              </thead>
+              <tbody>
+                {g.channels.map((ch, i) => (
+                  <tr key={i} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                    <td className="py-3 pr-4 text-sm font-medium text-foreground">{ch.channel}</td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground">{ch.investment}</td>
+                    <td className="py-3 pl-4 text-center">
+                      <Badge variant="outline" className={`text-xs ${
+                        ch.status === "Phase 1" ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}>{ch.status}</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </SectionCard>
+      )}
+
+      {sub === "timeline" && (
+        <div className="space-y-4">
+          {g.launchTimeline.map((phase, i) => (
+            <div key={i} className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 ${
+                  i === 0 ? "ss-gradient" : "bg-muted-foreground/30"
+                }`}>{i + 1}</div>
+                {i < g.launchTimeline.length - 1 && <div className="w-px flex-1 bg-border mt-2" />}
+              </div>
+              <SectionCard className="flex-1 mb-4">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <h3 className="font-display text-base font-semibold text-foreground">{phase.phase}</h3>
+                  <Badge variant="outline" className="text-xs shrink-0">{phase.timing}</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{phase.deliverables}</p>
+              </SectionCard>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {sub === "resources" && (
+        <div className="space-y-4">
+          {g.draftedResources.map((res, i) => (
+            <SectionCard key={i} className="card-lift">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-display text-base font-semibold text-foreground">{res.title}</h3>
+                    <Badge variant="outline" className={`text-xs ${
+                      res.status === "Live" ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                    }`}>{res.status}</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{res.description}</p>
+                </div>
+                {res.url !== "#" && (
+                  <a href={res.url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs text-purple-700 hover:text-purple-900 font-medium shrink-0 mt-1">
+                    <ExternalLink size={13} />Open
+                  </a>
+                )}
+              </div>
+            </SectionCard>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Tab: Consumer Journey ─────────────────────────────────────────────────────
+
+function JourneyTab() {
+  const [activeStage, setActiveStage] = useState(0);
+  const j = brandData.journey;
+  const stageIconMap: Record<string, React.ReactNode> = {
+    Radar: <Radar size={16} />,
+    Search: <Search size={16} />,
+    CheckCircle: <CheckCircle2 size={16} />,
+    Rocket: <Rocket size={16} />,
+    RefreshCw: <RefreshCw size={16} />,
+    Megaphone: <Megaphone size={16} />,
+  };
+
+  return (
+    <div className="space-y-6 tab-content-enter">
+      <KeyTakeaway text={j.keyTakeaway} />
+
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {j.stages.map((stage, i) => (
+          <button
+            key={i}
+            onClick={() => setActiveStage(i)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all shrink-0 ${
+              activeStage === i
+                ? "ss-gradient text-white shadow-md"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {stageIconMap[stage.icon]}
+            {stage.stage}
+          </button>
+        ))}
+      </div>
+
+      {j.stages.map((stage, i) => (
+        activeStage === i && (
+          <div key={i} className="space-y-5">
+            <SectionCard>
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl ss-gradient flex items-center justify-center text-white shrink-0">
+                  {stageIconMap[stage.icon]}
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-bold text-foreground">{stage.stage}</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">{stage.description}</p>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-purple-700 mb-1">Founder Mindset</p>
+                <p className="text-sm italic text-foreground">{stage.founderMindset}</p>
+              </div>
+              <FieldRow label="Success Metric" value={stage.successMetric} />
+            </SectionCard>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <SectionCard>
+                <p className="text-xs font-semibold uppercase tracking-widest text-blue-700 mb-3">Touchpoints</p>
+                <ul className="space-y-2">
+                  {stage.touchpoints.map((t, j) => (
+                    <li key={j} className="flex items-start gap-2 text-xs text-foreground">
+                      <CircleDot size={11} className="text-blue-600 mt-0.5 shrink-0" />{t}
+                    </li>
+                  ))}
+                </ul>
+              </SectionCard>
+              <SectionCard>
+                <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-3">Content Needed</p>
+                <ul className="space-y-2">
+                  {stage.contentNeeded.map((c, j) => (
+                    <li key={j} className="flex items-start gap-2 text-xs text-foreground">
+                      <BookOpen size={11} className="text-green-600 mt-0.5 shrink-0" />{c}
+                    </li>
+                  ))}
+                </ul>
+              </SectionCard>
+              <SectionCard>
+                <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-3">Friction Points</p>
+                <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                  <p className="text-xs text-foreground leading-relaxed">{stage.friction}</p>
+                </div>
+              </SectionCard>
+            </div>
+          </div>
+        )
+      ))}
+    </div>
+  );
+}
+
+// ── Tab: Product / PaaS ───────────────────────────────────────────────────────
+
+function ProductTab() {
+  const [sub, setSub] = useState("model");
+  const p = brandData.product;
+
+  return (
+    <div className="space-y-6 tab-content-enter">
+      <KeyTakeaway text={p.keyTakeaway} />
+
+      <SubTabNav
+        tabs={[
+          { id: "model", label: "Current Model" },
+          { id: "paas", label: "PaaS Vision" },
+          { id: "roadmap", label: "Roadmap" },
+          { id: "differentiators", label: "Differentiators" },
+        ]}
+        active={sub}
+        onChange={setSub}
+      />
+
+      {sub === "model" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<Briefcase size={16} />} title={p.currentModel.type} subtitle={p.currentModel.description} />
+          </SectionCard>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {p.currentModel.phases.map((phase, i) => (
+              <SectionCard key={i} className={i === 0 ? "border-purple-200" : "border-blue-200"}>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg ss-gradient flex items-center justify-center text-white text-xs font-bold">{i + 1}</div>
+                  <h3 className="font-display text-base font-semibold text-foreground">{phase.name}</h3>
+                </div>
+                <FieldRow label="Duration" value={phase.duration} />
+                <FieldRow label="Pricing" value={phase.pricing} />
+                <div className="mt-3">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Deliverables</p>
+                  <p className="text-xs text-foreground leading-relaxed">{phase.deliverables}</p>
+                </div>
+              </SectionCard>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {sub === "paas" && (
+        <div className="space-y-5">
+          <SectionCard>
+            <SectionHeader icon={<Package size={16} />} title="PaaS Product Vision" />
+            <div className="p-4 rounded-xl ss-gradient text-white mb-5">
+              <p className="text-sm font-semibold">{p.paasVision.corePrinciple}</p>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">{p.paasVision.description}</p>
+            <FieldRow label="Target User" value={p.paasVision.targetUser} />
+          </SectionCard>
+          <SectionCard>
+            <p className="text-xs font-semibold uppercase tracking-widest text-purple-700 mb-3">Core PaaS Capabilities</p>
+            <div className="space-y-2">
+              {p.paasVision.keyCapabilities.map((cap, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border">
+                  <div className="w-6 h-6 rounded-full ss-gradient flex items-center justify-center text-white text-xs font-bold shrink-0">{i + 1}</div>
+                  <p className="text-sm text-foreground">{cap}</p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {sub === "roadmap" && (
+        <div className="space-y-4">
+          {p.roadmap.map((phase, i) => (
+            <SectionCard key={i} className={`card-lift border-l-4 ${
+              phase.status === "Active" ? "border-l-green-500" :
+              phase.status === "Planned" ? "border-l-blue-500" : "border-l-muted-foreground/30"
+            }`}>
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <h3 className="font-display text-base font-semibold text-foreground">{phase.phase}</h3>
+                  <p className="text-xs text-muted-foreground">{phase.focus}</p>
+                </div>
+                <Badge variant="outline" className={`text-xs shrink-0 ${
+                  phase.status === "Active" ? "bg-green-50 text-green-700 border-green-200" :
+                  phase.status === "Planned" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                  "bg-muted text-muted-foreground"
+                }`}>{phase.status}</Badge>
+              </div>
+              <ul className="space-y-1.5">
+                {phase.items.map((item, j) => (
+                  <li key={j} className="flex items-start gap-2 text-xs text-foreground">
+                    <CheckCircle2 size={12} className={`mt-0.5 shrink-0 ${
+                      phase.status === "Active" ? "text-green-600" :
+                      phase.status === "Planned" ? "text-blue-500" : "text-muted-foreground/50"
+                    }`} />{item}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          ))}
+        </div>
+      )}
+
+      {sub === "differentiators" && (
+        <SectionCard>
+          <SectionHeader icon={<Zap size={16} />} title="Product Differentiators" subtitle="What makes StartSuite's model impossible to replicate" />
+          <div className="space-y-3">
+            {p.differentiators.map((d, i) => (
+              <div key={i} className="flex items-start gap-3 p-4 rounded-xl border border-purple-200 bg-purple-50">
+                <div className="w-7 h-7 rounded-full ss-gradient flex items-center justify-center text-white text-xs font-bold shrink-0">{i + 1}</div>
+                <p className="text-sm text-foreground leading-relaxed">{d}</p>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
+    </div>
+  );
+}
+
+// ── Tab: Workspace ────────────────────────────────────────────────────────────
+
+function WorkspaceTab() {
+  const [sub, setSub] = useState("actions");
+  const [actionStatuses, setActionStatuses] = useState<Record<number, string>>({});
+  const w = brandData.workspace;
+  const statusColors: Record<string, string> = {
+    "Not Started": "bg-muted text-muted-foreground",
+    "In Progress": "bg-blue-100 text-blue-800 border-blue-300",
+    "Complete": "bg-green-100 text-green-800 border-green-300",
+  };
+  const priorityColors: Record<string, string> = {
+    High: "bg-red-100 text-red-800 border-red-300",
+    Medium: "bg-amber-100 text-amber-800 border-amber-300",
+  };
+
+  const cycleStatus = (i: number, current: string) => {
+    const statuses = ["Not Started", "In Progress", "Complete"];
+    const next = statuses[(statuses.indexOf(current) + 1) % statuses.length];
+    setActionStatuses(prev => ({ ...prev, [i]: next }));
+  };
+
+  return (
+    <div className="space-y-6 tab-content-enter">
+      <KeyTakeaway text={w.keyTakeaway} />
+
+      <SubTabNav
+        tabs={[
+          { id: "actions", label: "Action Items" },
+          { id: "questions", label: "Open Questions" },
+        ]}
+        active={sub}
+        onChange={setSub}
+      />
+
+      {sub === "actions" && (
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground">Click a status badge to cycle through: Not Started → In Progress → Complete</p>
+          {w.actionItems.map((item, i) => {
+            const currentStatus = actionStatuses[i] ?? item.status;
+            return (
+              <SectionCard key={i} className="card-lift">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground mb-1">{item.item}</p>
+                    <p className="text-xs text-muted-foreground">Owner: <span className="font-medium text-foreground">{item.owner}</span></p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className={`text-xs ${priorityColors[item.priority]}`}>{item.priority}</Badge>
+                    <button
+                      onClick={() => cycleStatus(i, currentStatus)}
+                      className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors cursor-pointer ${statusColors[currentStatus]}`}
+                    >
+                      {currentStatus}
+                    </button>
+                  </div>
+                </div>
+              </SectionCard>
+            );
+          })}
+        </div>
+      )}
+
+      {sub === "questions" && (
+        <div className="space-y-4">
+          {w.openQuestions.map((q, i) => (
+            <SectionCard key={i} className="card-lift">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div className="flex items-start gap-3 flex-1">
+                  <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                    <span className="text-amber-700 text-sm font-bold">?</span>
+                  </div>
+                  <p className="text-sm font-medium text-foreground">{q.question}</p>
+                </div>
+                <Badge variant="outline" className={`text-xs shrink-0 ${priorityColors[q.priority]}`}>{q.priority}</Badge>
+              </div>
+              <div className="ml-10 space-y-1">
+                <p className="text-xs text-muted-foreground">Owner: <span className="font-medium text-foreground">{q.owner}</span></p>
+                {q.notes && <p className="text-xs text-muted-foreground italic">{q.notes}</p>}
+              </div>
+            </SectionCard>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1306,6 +2295,7 @@ function DigitalTab() {
 export default function Home() {
   const tabs = [
     { value: "overview", label: "Overview", icon: <TrendingUp size={15} /> },
+    { value: "identity", label: "Identity", icon: <Fingerprint size={15} /> },
     { value: "company", label: "Company", icon: <Building2 size={15} /> },
     { value: "visual", label: "Visual", icon: <Palette size={15} /> },
     { value: "verbal", label: "Verbal", icon: <MessageSquare size={15} /> },
@@ -1313,6 +2303,10 @@ export default function Home() {
     { value: "audience", label: "Audience", icon: <Users size={15} /> },
     { value: "competitive", label: "Competitive", icon: <BarChart3 size={15} /> },
     { value: "digital", label: "Digital", icon: <Globe size={15} /> },
+    { value: "gtm", label: "Go-to-Market", icon: <Rocket size={15} /> },
+    { value: "journey", label: "Journey", icon: <Map size={15} /> },
+    { value: "product", label: "Product", icon: <Package size={15} /> },
+    { value: "workspace", label: "Workspace", icon: <ClipboardList size={15} /> },
   ];
 
   return (
@@ -1377,6 +2371,7 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="overview"><OverviewTab /></TabsContent>
+          <TabsContent value="identity"><IdentityTab /></TabsContent>
           <TabsContent value="company"><CompanyTab /></TabsContent>
           <TabsContent value="visual"><VisualTab /></TabsContent>
           <TabsContent value="verbal"><VerbalTab /></TabsContent>
@@ -1384,6 +2379,10 @@ export default function Home() {
           <TabsContent value="audience"><AudienceTab /></TabsContent>
           <TabsContent value="competitive"><CompetitiveTab /></TabsContent>
           <TabsContent value="digital"><DigitalTab /></TabsContent>
+          <TabsContent value="gtm"><GTMTab /></TabsContent>
+          <TabsContent value="journey"><JourneyTab /></TabsContent>
+          <TabsContent value="product"><ProductTab /></TabsContent>
+          <TabsContent value="workspace"><WorkspaceTab /></TabsContent>
         </Tabs>
       </div>
 
