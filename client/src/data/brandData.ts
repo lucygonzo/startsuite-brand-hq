@@ -1460,6 +1460,82 @@ export const brandData = {
     ],
   },
 
+  // ── PORTFOLIO ────────────────────────────────────────────────────────────────
+  portfolio: {
+    keyTakeaway:
+      "StartSuite has supported 11+ startups across legal tech, fintech, health, and professional services, helping founders raise capital, launch faster, and build brands that compound over time.",
+    stats: [
+      { label: "Startups Supported", value: "11+" },
+      { label: "Capital Raised by Clients", value: "$16M+" },
+      { label: "Client Satisfaction", value: "4.74 / 5" },
+      { label: "Avg. Foundation Build", value: "60 days" },
+    ],
+    filters: ["All", "Identity System", "Website", "Pitch Materials", "Strategic Support", "Asset Infrastructure"],
+    clients: [
+      {
+        name: "Client A",
+        category: "Legal Tech",
+        stage: "Pre-Seed",
+        services: ["Identity System", "Website", "Pitch Materials"],
+        headline: "Full brand foundation built for a legal tech startup entering a crowded market.",
+        challenge: "No visual identity, no positioning, and a pitch deck that was not landing with investors.",
+        outcome: "Complete identity system, investor-ready pitch deck, and a positioning-led website delivered in 58 days.",
+        result: { label: "Capital Raised", value: "N/A" },
+        accentColor: "#6607E1",
+        placeholder: true,
+      },
+      {
+        name: "Client B",
+        category: "Fintech",
+        stage: "Seed",
+        services: ["Identity System", "Strategic Support"],
+        headline: "Brand strategy and identity for a fintech startup backed by a Tulsa-based fund.",
+        challenge: "Inconsistent visual identity across investor materials and a value proposition that was not resonating with the target audience.",
+        outcome: "Unified identity system, refined messaging framework, and a cleaner investor narrative.",
+        result: { label: "Capital Raised", value: "N/A" },
+        accentColor: "#BE5CFF",
+        placeholder: true,
+      },
+      {
+        name: "Client C",
+        category: "Health & Wellness",
+        stage: "Pre-Seed",
+        services: ["Identity System", "Website", "Asset Infrastructure"],
+        headline: "From zero to launch-ready in under 60 days for a health startup.",
+        challenge: "Founder had a strong product concept but no brand, no web presence, and no organized asset system.",
+        outcome: "Logo system, color and type standards, branded templates, and a live website organized in a Brand HQ.",
+        result: { label: "Time to Launch", value: "54 days" },
+        accentColor: "#BC98FF",
+        placeholder: true,
+      },
+      {
+        name: "Client D",
+        category: "Professional Services",
+        stage: "Early Growth",
+        services: ["Pitch Materials", "Strategic Support"],
+        headline: "Pitch deck and GTM narrative for a professional services firm entering a new vertical.",
+        challenge: "Strong track record but no story that translated to new client acquisition or partnership conversations.",
+        outcome: "Investor-grade pitch deck, one-pager, and a refined GTM narrative that opened three new partnership conversations.",
+        result: { label: "New Partnerships", value: "3 opened" },
+        accentColor: "#070322",
+        placeholder: true,
+      },
+      {
+        name: "Client E",
+        category: "SaaS",
+        stage: "Seed",
+        services: ["Identity System", "Website", "Pitch Materials", "Strategic Support"],
+        headline: "Full-stack brand build for a SaaS startup raising its seed round.",
+        challenge: "Competing against well-funded incumbents with a product that was technically superior but visually invisible.",
+        outcome: "Complete brand system, positioning-led website, and a pitch deck that helped close the seed round.",
+        result: { label: "Capital Raised", value: "N/A" },
+        accentColor: "#6607E1",
+        placeholder: true,
+      },
+    ],
+    caseStudyNote: "Full case studies with before/after brand assets are in development. Contact reagan@renfroecreative.com to request a portfolio walkthrough.",
+  },
+
   // ── WORKSPACE ────────────────────────────────────────────────────────────────
   workspace: {
     keyTakeaway:
