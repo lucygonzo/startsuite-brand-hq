@@ -6,13 +6,13 @@
  * Tabs: Overview | Company | Visual | Verbal | Services | Audience | Competitive | Digital
  */
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   TrendingUp, Building2, Palette, MessageSquare, Globe, Users, Briefcase, Target,
-  ChevronRight, AlertTriangle, CheckCircle2, Copy, Check, ExternalLink, Lightbulb,
+  ChevronRight, ChevronLeft, AlertTriangle, CheckCircle2, Copy, Check, ExternalLink, Lightbulb,
   Layers, BarChart3, Zap, ArrowRight, Info, Fingerprint, Map, Rocket, Package,
   ClipboardList, Radar, Search, RefreshCw, Megaphone, Star, BookOpen, DollarSign,
   Handshake, Brain, Heart, Newspaper, Clock, CircleDot, PlayCircle
@@ -2290,6 +2290,89 @@ function WorkspaceTab() {
   );
 }
 
+// ── Scrollable Tab Bar ───────────────────────────────────────────────────────
+
+function ScrollableTabBar({ tabs }: { tabs: { value: string; label: string; icon: React.ReactNode }[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", checkScroll); ro.disconnect(); };
+  }, [checkScroll]);
+
+  const scroll = (dir: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative mb-8 bg-white rounded-xl shadow-sm border border-border">
+      {/* Left fade + arrow */}
+      {canScrollLeft && (
+        <>
+          <div className="absolute left-0 top-0 bottom-0 w-14 bg-gradient-to-r from-white to-transparent z-10 rounded-l-xl pointer-events-none" />
+          <button
+            onClick={() => scroll("left")}
+            className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white shadow-md border border-border flex items-center justify-center hover:bg-muted transition-colors"
+            aria-label="Scroll tabs left"
+          >
+            <ChevronLeft size={14} className="text-foreground" />
+          </button>
+        </>
+      )}
+
+      {/* Right fade + arrow */}
+      {canScrollRight && (
+        <>
+          <div className="absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-white to-transparent z-10 rounded-r-xl pointer-events-none" />
+          <button
+            onClick={() => scroll("right")}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white shadow-md border border-border flex items-center justify-center hover:bg-muted transition-colors"
+            aria-label="Scroll tabs right"
+          >
+            <ChevronRight size={14} className="text-foreground" />
+          </button>
+        </>
+      )}
+
+      {/* Scrollable wrapper div */}
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto p-1.5 rounded-xl"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        <TabsList className="flex gap-1 h-auto bg-transparent p-0 w-max min-w-full">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap shrink-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-sm"
+            >
+              {tab.icon}
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -2357,18 +2440,7 @@ export default function Home() {
       {/* Main Content */}
       <div className="container py-8 pb-16">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="flex flex-wrap w-full gap-1 h-auto p-1.5 bg-white rounded-xl shadow-sm mb-8 border border-border">
-            {tabs.map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                {tab.icon}
-                <span className="hidden sm:inline">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <ScrollableTabBar tabs={tabs} />
 
           <TabsContent value="overview"><OverviewTab /></TabsContent>
           <TabsContent value="identity"><IdentityTab /></TabsContent>
