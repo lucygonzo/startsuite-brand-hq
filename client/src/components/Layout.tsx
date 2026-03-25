@@ -25,6 +25,10 @@ import {
   BookMarked,
   Sun,
   Moon,
+  Search,
+  BarChart3,
+  BookOpen,
+  ClipboardCheck,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { LOGO_URLS } from "@/data/brandData";
@@ -33,17 +37,21 @@ export type TabId =
   | "overview"
   | "company"
   | "identity"
+  | "gap-analysis"
   | "visual"
   | "verbal"
   | "services"
   | "audience"
   | "competitive"
+  | "journey"
   | "digital"
   | "gtm"
-  | "journey"
   | "product"
+  | "revenue"
   | "portfolio"
-  | "workspace";
+  | "actions"
+  | "decisions"
+  | "report-card";
 
 interface NavItem {
   id: TabId;
@@ -63,6 +71,7 @@ const navSections: NavSection[] = [
       { id: "overview", label: "Overview", icon: <LayoutDashboard size={15} /> },
       { id: "company", label: "Company Profile", icon: <Building2 size={15} /> },
       { id: "identity", label: "Brand Identity", icon: <Fingerprint size={15} /> },
+      { id: "gap-analysis", label: "Gap Analysis", icon: <Search size={15} /> },
     ],
   },
   {
@@ -87,13 +96,16 @@ const navSections: NavSection[] = [
       { id: "digital", label: "Digital Ecosystem", icon: <Globe size={15} /> },
       { id: "gtm", label: "Go-to-Market", icon: <Rocket size={15} /> },
       { id: "product", label: "Product Strategy", icon: <Package size={15} /> },
+      { id: "revenue", label: "Revenue Model", icon: <BarChart3 size={15} /> },
       { id: "portfolio", label: "Portfolio", icon: <Briefcase size={15} /> },
     ],
   },
   {
     label: "WORKSPACE",
     items: [
-      { id: "workspace", label: "Action Items", icon: <ListChecks size={15} /> },
+      { id: "actions", label: "Action Items", icon: <ListChecks size={15} /> },
+      { id: "decisions", label: "Decision Log", icon: <BookOpen size={15} /> },
+      { id: "report-card", label: "Report Card", icon: <ClipboardCheck size={15} /> },
     ],
   },
 ];
