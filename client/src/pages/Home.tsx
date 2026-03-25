@@ -6,18 +6,19 @@
  * Tabs: Overview | Company | Visual | Verbal | Services | Audience | Competitive | Digital
  */
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   TrendingUp, Building2, Palette, MessageSquare, Globe, Users, Briefcase, Target,
-  ChevronRight, ChevronLeft, AlertTriangle, CheckCircle2, Copy, Check, ExternalLink, Lightbulb,
+  ChevronRight, AlertTriangle, CheckCircle2, Copy, Check, ExternalLink, Lightbulb,
   Layers, BarChart3, Zap, ArrowRight, Info, Fingerprint, Map, Rocket, Package,
   ClipboardList, Radar, Search, RefreshCw, Megaphone, Star, BookOpen, DollarSign,
   Handshake, Brain, Heart, Newspaper, Clock, CircleDot, PlayCircle
 } from "lucide-react";
 import { brandData, LOGO_URLS } from "@/data/brandData";
+import Layout from "@/components/Layout";
+import { NavigationProvider, useNavigation } from "@/contexts/NavigationContext";
 
 // ── Shared UI Primitives ──────────────────────────────────────────────────────
 
@@ -2397,189 +2398,35 @@ function WorkspaceTab() {
   );
 }
 
-// ── Scrollable Tab Bar ───────────────────────────────────────────────────────
+// ── Main Page ─────────────────────────────────────────────────────────────────
 
-function ScrollableTabBar({ tabs }: { tabs: { value: string; label: string; icon: React.ReactNode }[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const checkScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-  }, []);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    checkScroll();
-    el.addEventListener("scroll", checkScroll, { passive: true });
-    const ro = new ResizeObserver(checkScroll);
-    ro.observe(el);
-    return () => { el.removeEventListener("scroll", checkScroll); ro.disconnect(); };
-  }, [checkScroll]);
-
-  const scroll = (dir: "left" | "right") => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
-  };
+function Home() {
+  const { activeTab, setActiveTab } = useNavigation();
 
   return (
-    <div className="relative mb-8 bg-white rounded-xl shadow-sm border border-border">
-      {/* Left fade + arrow */}
-      {canScrollLeft && (
-        <>
-          <div className="absolute left-0 top-0 bottom-0 w-14 bg-gradient-to-r from-white to-transparent z-10 rounded-l-xl pointer-events-none" />
-          <button
-            onClick={() => scroll("left")}
-            className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white shadow-md border border-border flex items-center justify-center hover:bg-muted transition-colors"
-            aria-label="Scroll tabs left"
-          >
-            <ChevronLeft size={14} className="text-foreground" />
-          </button>
-        </>
-      )}
-
-      {/* Right fade + arrow */}
-      {canScrollRight && (
-        <>
-          <div className="absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-white to-transparent z-10 rounded-r-xl pointer-events-none" />
-          <button
-            onClick={() => scroll("right")}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white shadow-md border border-border flex items-center justify-center hover:bg-muted transition-colors"
-            aria-label="Scroll tabs right"
-          >
-            <ChevronRight size={14} className="text-foreground" />
-          </button>
-        </>
-      )}
-
-      {/* Scrollable wrapper div */}
-      <div
-        ref={scrollRef}
-        className="overflow-x-auto p-1.5 rounded-xl"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        <TabsList className="flex gap-1 h-auto bg-transparent p-0 w-max min-w-full">
-          {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap shrink-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-sm"
-            >
-              {tab.icon}
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </div>
-    </div>
+    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+      {activeTab === "overview" && <OverviewTab />}
+      {activeTab === "identity" && <IdentityTab />}
+      {activeTab === "company" && <CompanyTab />}
+      {activeTab === "visual" && <VisualTab />}
+      {activeTab === "verbal" && <VerbalTab />}
+      {activeTab === "services" && <ServicesTab />}
+      {activeTab === "audience" && <AudienceTab />}
+      {activeTab === "competitive" && <CompetitiveTab />}
+      {activeTab === "digital" && <DigitalTab />}
+      {activeTab === "gtm" && <GTMTab />}
+      {activeTab === "journey" && <JourneyTab />}
+      {activeTab === "product" && <ProductTab />}
+      {activeTab === "portfolio" && <PortfolioTab />}
+      {activeTab === "workspace" && <WorkspaceTab />}
+    </Layout>
   );
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
-
-export default function Home() {
-  const tabs = [
-    { value: "overview", label: "Overview", icon: <TrendingUp size={15} /> },
-    { value: "identity", label: "Identity", icon: <Fingerprint size={15} /> },
-    { value: "company", label: "Company", icon: <Building2 size={15} /> },
-    { value: "visual", label: "Visual", icon: <Palette size={15} /> },
-    { value: "verbal", label: "Verbal", icon: <MessageSquare size={15} /> },
-    { value: "services", label: "Services", icon: <Layers size={15} /> },
-    { value: "audience", label: "Audience", icon: <Users size={15} /> },
-    { value: "competitive", label: "Competitive", icon: <BarChart3 size={15} /> },
-    { value: "digital", label: "Digital", icon: <Globe size={15} /> },
-    { value: "gtm", label: "Go-to-Market", icon: <Rocket size={15} /> },
-    { value: "journey", label: "Journey", icon: <Map size={15} /> },
-    { value: "product", label: "Product", icon: <Package size={15} /> },
-    { value: "portfolio", label: "Portfolio", icon: <Briefcase size={15} /> },
-    { value: "workspace", label: "Workspace", icon: <ClipboardList size={15} /> },
-  ];
-
+export default function HomeWrapper() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
-        <div className="container py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={LOGO_URLS.horizLight} alt="StartSuite" className="h-8 object-contain" />
-            <div className="w-px h-6 bg-border" />
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Brand HQ</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground">Updated: {brandData.updatedDate}</p>
-            <p className="text-xs text-muted-foreground">Powered by 46Capital</p>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="ss-gradient text-white py-14">
-        <div className="container">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <Badge className="mb-3 bg-white/20 text-white border-white/30 text-xs">
-                <Briefcase size={11} className="mr-1" />
-                Creative Infrastructure for Founders
-              </Badge>
-              <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">StartSuite Brand HQ</h1>
-              <p className="text-white/80 text-base max-w-xl">
-                The complete brand reference for StartSuite — visual identity, verbal identity, services, audience, and competitive positioning.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-3 shrink-0">
-              {brandData.proofPoints.slice(0, 4).map((p, i) => (
-                <div key={i} className="text-center p-3 bg-white/15 rounded-xl border border-white/20">
-                  <p className="font-display text-xl font-bold text-white">{p.stat}</p>
-                  <p className="text-xs text-white/70 mt-0.5 leading-tight">{p.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Content */}
-      <div className="container py-8 pb-16">
-        <Tabs defaultValue="overview" className="w-full">
-          <ScrollableTabBar tabs={tabs} />
-
-          <TabsContent value="overview"><OverviewTab /></TabsContent>
-          <TabsContent value="identity"><IdentityTab /></TabsContent>
-          <TabsContent value="company"><CompanyTab /></TabsContent>
-          <TabsContent value="visual"><VisualTab /></TabsContent>
-          <TabsContent value="verbal"><VerbalTab /></TabsContent>
-          <TabsContent value="services"><ServicesTab /></TabsContent>
-          <TabsContent value="audience"><AudienceTab /></TabsContent>
-          <TabsContent value="competitive"><CompetitiveTab /></TabsContent>
-          <TabsContent value="digital"><DigitalTab /></TabsContent>
-          <TabsContent value="gtm"><GTMTab /></TabsContent>
-          <TabsContent value="journey"><JourneyTab /></TabsContent>
-          <TabsContent value="product"><ProductTab /></TabsContent>
-          <TabsContent value="portfolio"><PortfolioTab /></TabsContent>
-          <TabsContent value="workspace"><WorkspaceTab /></TabsContent>
-        </Tabs>
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-white py-6">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <img src={LOGO_URLS.horizLight} alt="StartSuite" className="h-6 object-contain" />
-            <p className="text-xs text-muted-foreground">Brand HQ — Confidential</p>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Creative strategy, design, and storytelling for companies that can't afford to be overlooked.
-          </p>
-          <p className="text-xs text-muted-foreground">Updated {brandData.updatedDate}</p>
-        </div>
-      </footer>
-    </div>
+    <NavigationProvider>
+      <Home />
+    </NavigationProvider>
   );
 }
