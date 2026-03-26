@@ -305,9 +305,9 @@ export default function Layout({ activeTab, onTabChange, children }: LayoutProps
 
         {/* Main content */}
         <main
-          className="flex-1 min-h-screen overflow-y-auto lg:ml-52 bg-background"
+          className="flex-1 min-h-screen overflow-y-auto overflow-x-hidden lg:ml-52 bg-background"
         >
-          <div className="tab-content-enter" style={{ padding: "28px 32px 48px 32px" }}>{children}</div>
+          <div className="tab-content-enter px-4 sm:px-6 lg:px-8 pt-6 pb-12 max-w-full">{children}</div>
         </main>
       </div>
     </div>
