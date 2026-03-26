@@ -8,12 +8,12 @@ import { brandData } from "@/data/brandData";
 
 const phaseConfig: Record<string, { label: string; badgeClass: string; icon: React.ReactNode }> = {
   "Entry Point": { label: "Entry Point", badgeClass: "ss-gradient text-white border-0", icon: <Star size={16} /> },
-  "Subscription": { label: "Core Subscription", badgeClass: "bg-purple-100 text-purple-700 border-purple-200", icon: <Layers size={16} /> },
-  "Add-On": { label: "Add-On Services", badgeClass: "bg-blue-100 text-blue-700 border-blue-200", icon: <Plus size={16} /> },
-  "Premium": { label: "Premium Tier", badgeClass: "bg-amber-100 text-amber-800 border-amber-200", icon: <Crown size={16} /> },
+  "Ongoing": { label: "Core Subscription", badgeClass: "bg-purple-100 text-purple-700 border-purple-200", icon: <Layers size={16} /> },
+  "Modular": { label: "Add-On Services", badgeClass: "bg-blue-100 text-blue-700 border-blue-200", icon: <Plus size={16} /> },
+  "Custom": { label: "Premium Tier", badgeClass: "bg-amber-100 text-amber-800 border-amber-200", icon: <Crown size={16} /> },
 };
 
-const phaseOrder = ["Entry Point", "Subscription", "Add-On", "Premium"];
+const phaseOrder = ["Entry Point", "Ongoing", "Modular", "Custom"];
 
 export default function ServicesTab() {
   const [expanded, setExpanded] = useState<number | null>(null);

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard, KeyTakeaway, SubTabNav } from "@/components/BrandUI";
 import {
-  AlertTriangle, CheckCircle2, Copy, Check, Info,
+  AlertTriangle, CheckCircle2, Copy, Check, Info, ShieldAlert, XCircle, ArrowRight, HelpCircle,
 } from "lucide-react";
 import { brandData } from "@/data/brandData";
 
@@ -27,6 +27,7 @@ export default function VerbalTab() {
           { id: "messaging", label: "Messaging Pillars" },
           { id: "copy", label: "Copy Blocks" },
           { id: "rules", label: "Language Rules" },
+          { id: "whatnot", label: "What NOT to Say" },
         ]}
         active={sub}
         onChange={setSub}
@@ -161,6 +162,91 @@ export default function VerbalTab() {
                 <div key={i} className="flex items-start gap-2 p-3 rounded-lg border border-border">
                   <Info size={13} className="text-purple-600 mt-0.5 shrink-0" />
                   <p className="text-xs text-foreground leading-relaxed">{rule}</p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {sub === "whatnot" && vb.whatNotToSay && (
+        <div className="space-y-5">
+          {/* Key takeaway for this section */}
+          <div className="p-4 rounded-xl border-2 border-red-300 bg-red-50/50">
+            <div className="flex items-start gap-3">
+              <ShieldAlert size={20} className="text-red-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-red-900 mb-1">Post-Pivot Positioning Guardrails</p>
+                <p className="text-xs text-red-800 leading-relaxed">{vb.whatNotToSay.keyTakeaway}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Anti-patterns */}
+          {vb.whatNotToSay.antiPatterns.map((pattern, i) => (
+            <SectionCard key={i}>
+              <div className="flex items-center gap-2 mb-2">
+                <XCircle size={16} className="text-red-500" />
+                <h3 className="font-display text-base font-semibold text-foreground">{pattern.category}</h3>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">{pattern.description}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-2 flex items-center gap-1">
+                    <CheckCircle2 size={11} /> Say this instead
+                  </p>
+                  <div className="space-y-1.5">
+                    {pattern.doSay.map((phrase, j) => (
+                      <p key={j} className="text-xs text-green-900 leading-relaxed">• {phrase}</p>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-red-700 mb-2 flex items-center gap-1">
+                    <XCircle size={11} /> Never say
+                  </p>
+                  <div className="space-y-1.5">
+                    {pattern.dontSay.map((phrase, j) => (
+                      <p key={j} className="text-xs text-red-900 leading-relaxed line-through decoration-red-300">• {phrase}</p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
+          ))}
+
+          {/* Retired Language */}
+          <SectionCard>
+            <h3 className="font-display text-base font-semibold mb-4 flex items-center gap-2">
+              <ArrowRight size={16} className="text-amber-600" />
+              Retired Pre-Pivot Language
+            </h3>
+            <div className="space-y-3">
+              {vb.whatNotToSay.retiredLanguage.map((item, i) => (
+                <div key={i} className="p-3 rounded-lg border border-border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700 line-through">{item.old}</span>
+                    <ArrowRight size={12} className="text-muted-foreground" />
+                    <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 font-medium">{item.new}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{item.reason}</p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          {/* Positioning Litmus Test */}
+          <SectionCard>
+            <h3 className="font-display text-base font-semibold mb-4 flex items-center gap-2">
+              <HelpCircle size={16} className="text-purple-600" />
+              Positioning Litmus Test
+            </h3>
+            <p className="text-xs text-muted-foreground mb-3">Run every piece of external communication through these 5 questions:</p>
+            <div className="space-y-2">
+              {vb.whatNotToSay.litmusTest.map((question, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-purple-200 bg-purple-50/50">
+                  <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 text-xs font-bold shrink-0">{i + 1}</div>
+                  <p className="text-xs text-purple-900 leading-relaxed">{question}</p>
                 </div>
               ))}
             </div>
