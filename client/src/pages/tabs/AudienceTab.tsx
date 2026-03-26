@@ -29,30 +29,28 @@ const tierTabLabels: Record<string, string> = {
   investors: "Investors",
 };
 
-/* ── Helper: typed access to new tier fields ──────────────────────────────── */
+/* ── Helper: typed access to tier fields ──────────────────────────────────── */
 
 type TierData = (typeof brandData.audience.tiers)[number];
 
-function tierEmpathy(t: TierData) {
-  return (t as TierData & { empathy?: { dailyLife: string; howTheyFind: string; howTheyDecide: string; frustrations: string[]; trustSignals: string[] } }).empathy;
+/* For fields that exist on all tiers in brandData but aren't in the base TS type */
+interface TierExtended {
+  empathy?: { dailyLife: string; howTheyFind: string; howTheyDecide: string; frustrations: string[]; trustSignals: string[] };
+  journeyStages?: { stage: string; action: string; startSuiteRole: string; leak?: string }[];
+  winFactors?: string[];
+  lossFactors?: string[];
+  funnelLeaks?: string[];
+  contentPreferences?: string[];
+  conversionTrigger?: string;
+  competitiveAlternatives?: { name: string; weakness: string }[];
+  objections?: { objection: string; response: string }[];
+  membershipLifecycle?: { entry: string; retention: string; upsell: string; churnRisk: string; advocacy: string };
+  whereWeOverdeliver?: string[];
+  dataSource?: string;
 }
-function tierJourney(t: TierData) {
-  return (t as TierData & { journeyStages?: { stage: string; action: string; startSuiteRole: string; leak?: string }[] }).journeyStages;
-}
-function tierWin(t: TierData) {
-  return (t as TierData & { winFactors?: string[] }).winFactors;
-}
-function tierLoss(t: TierData) {
-  return (t as TierData & { lossFactors?: string[] }).lossFactors;
-}
-function tierLeaks(t: TierData) {
-  return (t as TierData & { funnelLeaks?: string[] }).funnelLeaks;
-}
-function tierContent(t: TierData) {
-  return (t as TierData & { contentPreferences?: string[] }).contentPreferences;
-}
-function tierDataSource(t: TierData) {
-  return (t as TierData & { dataSource?: string }).dataSource;
+
+function ext(t: TierData): TierExtended {
+  return t as TierData & TierExtended;
 }
 
 /* ── Component ────────────────────────────────────────────────────────────── */
@@ -68,19 +66,13 @@ export default function AudienceTab() {
     ...tierTabIds.map((id) => ({ id, label: tierTabLabels[id] })),
   ];
 
-  /* find tier by tab id */
   const activeTier = tiers.find((t) => t.id === sub);
 
   return (
     <div className="space-y-6 tab-content-enter">
       <KeyTakeaway text={brandData.audience.keyTakeaway} />
-
       <SubTabNav tabs={subTabs} active={sub} onChange={setSub} />
-
-      {/* ── OVERVIEW ─────────────────────────────────────────────────────── */}
       {sub === "overview" && <OverviewPanel tiers={tiers} overlays={overlays} />}
-
-      {/* ── TIER DETAIL ──────────────────────────────────────────────────── */}
       {activeTier && <TierDetail tier={activeTier} overlays={overlays} />}
     </div>
   );
@@ -99,6 +91,41 @@ function OverviewPanel({
 }) {
   return (
     <div className="space-y-6">
+      {/* ── Membership Ecosystem Flow ────────────────── */}
+      <SectionCard>
+        <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+          MEMBERSHIP ECOSYSTEM
+        </p>
+        <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+          Every tier enters through a gateway product, progresses into ongoing membership, and expands through natural milestones. The deeper the context, the harder it is to replace. That is the moat.
+        </p>
+        <div className="overflow-x-auto pb-2">
+          <div className="flex items-center gap-2 min-w-max">
+            {[
+              { label: "Brand Discovery", sub: "$2.5K\u2013$5K standalone", color: "bg-purple-100 border-purple-300 text-purple-800" },
+              { label: "Foundations", sub: "$3K/mo membership", color: "bg-blue-100 border-blue-300 text-blue-800" },
+              { label: "Add-ons", sub: "Content, Paid, Web, AI", color: "bg-indigo-100 border-indigo-300 text-indigo-800" },
+              { label: "Dream Client", sub: "$10K+/mo full-service", color: "bg-violet-100 border-violet-300 text-violet-800" },
+            ].map((step, i, arr) => (
+              <div key={step.label} className="flex items-center gap-2">
+                <div className={`rounded-lg border px-5 py-3 text-center min-w-[140px] ${step.color}`}>
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-widest">{step.label}</p>
+                  <p className="text-[10px] mt-0.5 opacity-80">{step.sub}</p>
+                </div>
+                {i < arr.length - 1 && (
+                  <span className="text-muted-foreground text-lg shrink-0">&rarr;</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
+          <p className="text-[10px] text-muted-foreground leading-relaxed">
+            <span className="font-semibold">Context compounds at every stage.</span> Brand Discovery builds the initial intelligence layer. Foundations adds monthly competitive monitoring, strategy sessions, and brand updates. Add-ons expand capacity. Dream Client is the full creative operating system. The longer a member stays, the more irreplaceable the system becomes.
+          </p>
+        </div>
+      </SectionCard>
+
       {/* ── Priority Matrix ─────────────────────────────── */}
       <SectionCard>
         <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
@@ -108,7 +135,7 @@ function OverviewPanel({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                {["Tier", "Size", "Revenue", "Priority", "Entry Product", "Year 1 LTV", "Sales Cycle"].map(
+                {["Tier", "Size", "Revenue", "Priority", "Gateway", "Membership", "Year 1 LTV", "Sales Cycle"].map(
                   (h) => (
                     <th
                       key={h}
@@ -138,59 +165,15 @@ function OverviewPanel({
                     </Badge>
                   </td>
                   <td className="py-3 px-2 text-xs text-foreground">{t.entryProduct}</td>
+                  <td className="py-3 px-2 text-xs text-foreground">
+                    {t.id === "startups" ? "Brand Discovery \u2192 Foundations" :
+                     t.id === "growth" ? "Foundations direct" :
+                     t.id === "established" ? "Foundations + Add-ons" :
+                     t.id === "enterprise" ? "Dream Client" :
+                     "Portfolio Partnership"}
+                  </td>
                   <td className="py-3 px-2 text-xs font-mono font-bold text-purple-700">{t.yearOneLTV}</td>
                   <td className="py-3 px-2 text-xs font-mono text-foreground">{t.salesCycle}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </SectionCard>
-
-      {/* ── Product-Market Fit Quick Reference ──────────── */}
-      <SectionCard>
-        <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-          PRODUCT-MARKET FIT
-        </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 pr-2 font-mono font-semibold uppercase tracking-widest text-muted-foreground">
-                  Product
-                </th>
-                {tiers.map((t) => (
-                  <th key={t.id} className="text-center py-2 px-1 font-mono font-semibold uppercase tracking-widest text-muted-foreground">
-                    {t.name.replace(" & Accelerators", "")}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { product: "Brand Discovery ($2.5K\u2013$5K)", row: ["PRIMARY", "secondary", "rare", "\u2014", "cohort module"] },
-                { product: "Foundations ($3K/mo)", row: ["upgrade", "PRIMARY", "PRIMARY", "bundled", "portfolio license"] },
-                { product: "Content Add-ons ($1K\u2013$3K/mo)", row: ["upsell", "upsell", "common", "bundled", "per-company"] },
-                { product: "Dream Client ($10K+/mo)", row: ["aspirational", "rare", "upsell", "PRIMARY", "\u2014"] },
-                { product: "Portfolio License", row: ["\u2014", "\u2014", "\u2014", "\u2014", "PRIMARY"] },
-              ].map((r) => (
-                <tr key={r.product} className="border-b border-border last:border-0">
-                  <td className="py-2 pr-2 font-medium text-foreground">{r.product}</td>
-                  {r.row.map((cell, j) => (
-                    <td key={j} className="text-center py-2 px-1">
-                      <span
-                        className={`inline-block px-1.5 py-0.5 rounded text-[10px] ${
-                          cell === "PRIMARY"
-                            ? "bg-purple-100 text-purple-800 font-bold"
-                            : cell === "\u2014"
-                              ? "text-muted-foreground/40"
-                              : "text-muted-foreground"
-                        }`}
-                      >
-                        {cell}
-                      </span>
-                    </td>
-                  ))}
                 </tr>
               ))}
             </tbody>
@@ -234,7 +217,7 @@ function OverviewPanel({
         </p>
         <p className="text-sm text-foreground leading-relaxed">
           Nobody ever says &ldquo;I need brand strategy.&rdquo; They describe symptoms. Lead with the pain, surface the
-          root cause through conversation.
+          root cause through conversation. The membership sells itself once they experience the compounding value of Brand HQ.
         </p>
       </div>
     </div>
@@ -252,19 +235,13 @@ function TierDetail({
   tier: TierData;
   overlays: typeof brandData.audience.overlays;
 }) {
-  const empathy = tierEmpathy(tier);
-  const journey = tierJourney(tier);
-  const wins = tierWin(tier);
-  const losses = tierLoss(tier);
-  const leaks = tierLeaks(tier);
-  const content = tierContent(tier);
-  const dataSource = tierDataSource(tier);
+  const e = ext(tier);
+  const [openObjection, setOpenObjection] = useState<number | null>(null);
 
   return (
-    <div className="space-y-6">
-      {/* ── Section 1: Overview Card ─────────────────────── */}
+    <div className="space-y-8">
+      {/* ── 1. Tier Overview ─────────────────────────────── */}
       <SectionCard className={`border-l-4 ${priorityBorder[tier.priority]}`}>
-        {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>
             <h2 className="font-display text-xl font-bold text-foreground leading-tight">{tier.name}</h2>
@@ -274,12 +251,22 @@ function TierDetail({
             <Badge variant="outline" className={`text-xs ${priorityColors[tier.priority]}`}>
               {tier.priority}
             </Badge>
-            {dataSource && (
+            {e.dataSource && (
               <Badge variant="outline" className="text-[10px] font-mono bg-gray-50 text-gray-500 border-gray-200">
-                {dataSource}
+                {e.dataSource}
               </Badge>
             )}
           </div>
+        </div>
+
+        {/* Membership framing */}
+        <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 mb-4">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-purple-700 mb-0.5">
+            MEMBERSHIP PATH
+          </p>
+          <p className="text-xs text-foreground">
+            Gateway: <span className="font-semibold">{tier.entryProduct}</span> &rarr; Ongoing Membership &rarr; Expansion through natural milestones
+          </p>
         </div>
 
         {/* Problem callout */}
@@ -287,13 +274,13 @@ function TierDetail({
           <p className="text-sm text-foreground font-medium italic">&ldquo;{tier.problem}&rdquo;</p>
         </div>
 
-        {/* 2-col data grid */}
+        {/* Data grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3 mb-5">
           {[
             { label: "Company Size", value: tier.companySize },
             { label: "Revenue", value: tier.revenue },
             { label: "Stage", value: tier.stage },
-            { label: "Entry Product", value: tier.entryProduct },
+            { label: "Membership Fee", value: tier.entryProduct },
             { label: "Year 1 LTV", value: tier.yearOneLTV },
             { label: "Sales Cycle", value: tier.salesCycle },
             { label: "Decision Maker", value: tier.decisionMaker },
@@ -352,45 +339,56 @@ function TierDetail({
         </div>
       </SectionCard>
 
-      {/* ── Section 2: Empathy Profile ────────────────────── */}
-      {empathy && (
+      {/* ── 2. The Conversion Trigger ────────────────────── */}
+      {e.conversionTrigger && (
+        <div className="p-5 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 shadow-lg">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-purple-200 mb-2">
+            THE CONVERSION TRIGGER
+          </p>
+          <p className="text-sm text-white leading-relaxed font-medium">
+            {e.conversionTrigger}
+          </p>
+          <p className="text-[10px] text-purple-200 mt-3 italic">
+            This is the moment the sales team needs to engineer. Every touchpoint should move the prospect closer to this realization.
+          </p>
+        </div>
+      )}
+
+      {/* ── 3. Empathy Profile ──────────────────────────── */}
+      {e.empathy && (
         <div className="space-y-4">
           <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             EMPATHY PROFILE
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Daily Life */}
             <SectionCard className="border-l-4 border-l-purple-400">
               <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-purple-700 mb-2">
                 DAILY LIFE
               </p>
-              <p className="text-xs text-foreground leading-relaxed">{empathy.dailyLife}</p>
+              <p className="text-xs text-foreground leading-relaxed whitespace-pre-line">{e.empathy.dailyLife}</p>
             </SectionCard>
 
-            {/* How They Find Us */}
             <SectionCard className="border-l-4 border-l-blue-400">
               <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-blue-700 mb-2">
                 HOW THEY FIND US
               </p>
-              <p className="text-xs text-foreground leading-relaxed">{empathy.howTheyFind}</p>
+              <p className="text-xs text-foreground leading-relaxed whitespace-pre-line">{e.empathy.howTheyFind}</p>
             </SectionCard>
 
-            {/* How They Decide */}
             <SectionCard className="border-l-4 border-l-indigo-400">
               <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-indigo-700 mb-2">
                 HOW THEY DECIDE
               </p>
-              <p className="text-xs text-foreground leading-relaxed">{empathy.howTheyDecide}</p>
+              <p className="text-xs text-foreground leading-relaxed whitespace-pre-line">{e.empathy.howTheyDecide}</p>
             </SectionCard>
 
-            {/* Trust Signals */}
             <SectionCard className="border-l-4 border-l-green-400">
               <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-green-700 mb-2">
                 WHAT EARNS THEIR TRUST
               </p>
               <ul className="space-y-1.5">
-                {empathy.trustSignals.map((s, i) => (
+                {e.empathy.trustSignals.map((s, i) => (
                   <li key={i} className="flex items-start gap-2 text-xs text-foreground">
                     <span className="text-green-500 mt-0.5 shrink-0">&#9679;</span>
                     {s}
@@ -406,7 +404,7 @@ function TierDetail({
               FRUSTRATIONS
             </p>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5">
-              {empathy.frustrations.map((f, i) => (
+              {e.empathy.frustrations.map((f, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-foreground">
                   <span className="text-orange-500 mt-0.5 shrink-0">&#9679;</span>
                   {f}
@@ -417,15 +415,15 @@ function TierDetail({
         </div>
       )}
 
-      {/* ── Section 3: Decision Journey ──────────────────── */}
-      {journey && journey.length > 0 && (
+      {/* ── 4. Decision Journey ────────────────────────── */}
+      {e.journeyStages && e.journeyStages.length > 0 && (
         <div className="space-y-4">
           <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             DECISION JOURNEY
           </p>
           <div className="overflow-x-auto pb-2">
             <div className="flex gap-3 min-w-max">
-              {journey.map((s, i) => {
+              {e.journeyStages.map((s, i) => {
                 const hasLeak = !!s.leak;
                 return (
                   <div key={i} className="flex items-center gap-3">
@@ -440,7 +438,7 @@ function TierDetail({
                         {s.stage}
                       </p>
                       <p className="text-xs font-semibold text-foreground mb-1">{s.action}</p>
-                      <p className="text-[10px] text-muted-foreground leading-snug mb-1">{s.startSuiteRole}</p>
+                      <p className="text-[10px] text-purple-600 leading-snug mb-1">{s.startSuiteRole}</p>
                       {hasLeak && (
                         <div className="mt-2 p-2 rounded bg-orange-100 border border-orange-200">
                           <p className="text-[10px] text-orange-800 leading-snug">
@@ -449,7 +447,7 @@ function TierDetail({
                         </div>
                       )}
                     </div>
-                    {i < journey.length - 1 && (
+                    {i < e.journeyStages!.length - 1 && (
                       <span className="text-muted-foreground text-lg shrink-0">&rarr;</span>
                     )}
                   </div>
@@ -460,21 +458,72 @@ function TierDetail({
         </div>
       )}
 
-      {/* ── Section 4: Win/Loss Grid ─────────────────────── */}
-      {(wins || losses || leaks || content) && (
+      {/* ── 5. Competitive Alternatives ──────────────────── */}
+      {e.competitiveAlternatives && e.competitiveAlternatives.length > 0 && (
+        <div className="space-y-4">
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            COMPETITIVE ALTERNATIVES
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {e.competitiveAlternatives.map((alt, i) => (
+              <SectionCard key={i} className="border-l-4 border-l-red-400">
+                <p className="text-xs font-bold text-foreground mb-2">{alt.name}</p>
+                <div className="p-2 rounded bg-red-50 border border-red-200">
+                  <p className="text-[10px] text-red-800 leading-snug">
+                    <span className="font-semibold">Why it falls short:</span> {alt.weakness}
+                  </p>
+                </div>
+              </SectionCard>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── 6. Objections & Responses ────────────────────── */}
+      {e.objections && e.objections.length > 0 && (
+        <div className="space-y-4">
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            OBJECTIONS &amp; RESPONSES
+          </p>
+          <div className="space-y-2">
+            {e.objections.map((obj, i) => (
+              <div key={i} className="border border-border rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setOpenObjection(openObjection === i ? null : i)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors"
+                >
+                  <p className="text-sm font-semibold text-foreground">&ldquo;{obj.objection}&rdquo;</p>
+                  <span className="text-muted-foreground text-lg shrink-0 ml-3">
+                    {openObjection === i ? "\u2212" : "+"}
+                  </span>
+                </button>
+                {openObjection === i && (
+                  <div className="px-4 pb-4 border-t border-border bg-green-50">
+                    <p className="text-xs text-foreground leading-relaxed pt-3">
+                      {obj.response}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── 7. Win/Loss + Funnel Leaks ────────────────────── */}
+      {(e.winFactors || e.lossFactors || e.funnelLeaks || e.contentPreferences) && (
         <div className="space-y-4">
           <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             WIN / LOSS ANALYSIS
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Where We Win */}
-            {wins && (
+            {e.winFactors && (
               <SectionCard className="border-l-4 border-l-green-500">
                 <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-green-700 mb-2">
                   WHERE WE WIN
                 </p>
                 <ul className="space-y-1.5">
-                  {wins.map((w, i) => (
+                  {e.winFactors.map((w, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-foreground">
                       <span className="text-green-500 mt-0.5 shrink-0">&#9650;</span>
                       {w}
@@ -484,14 +533,13 @@ function TierDetail({
               </SectionCard>
             )}
 
-            {/* Where We Lose */}
-            {losses && (
+            {e.lossFactors && (
               <SectionCard className="border-l-4 border-l-orange-500">
                 <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-orange-700 mb-2">
                   WHERE WE LOSE
                 </p>
                 <ul className="space-y-1.5">
-                  {losses.map((l, i) => (
+                  {e.lossFactors.map((l, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-foreground">
                       <span className="text-orange-500 mt-0.5 shrink-0">&#9660;</span>
                       {l}
@@ -501,14 +549,13 @@ function TierDetail({
               </SectionCard>
             )}
 
-            {/* Funnel Leaks */}
-            {leaks && (
+            {e.funnelLeaks && (
               <SectionCard className="border-l-4 border-l-red-500">
                 <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-red-700 mb-2">
                   FUNNEL LEAKS
                 </p>
                 <ul className="space-y-1.5">
-                  {leaks.map((l, i) => (
+                  {e.funnelLeaks.map((l, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-foreground">
                       <span className="text-red-500 mt-0.5 shrink-0">&#9679;</span>
                       {l}
@@ -518,14 +565,13 @@ function TierDetail({
               </SectionCard>
             )}
 
-            {/* Content That Resonates */}
-            {content && (
+            {e.contentPreferences && (
               <SectionCard className="border-l-4 border-l-emerald-500">
                 <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-emerald-700 mb-2">
                   CONTENT THAT RESONATES
                 </p>
                 <ul className="space-y-1.5">
-                  {content.map((c, i) => (
+                  {e.contentPreferences.map((c, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-foreground">
                       <span className="text-emerald-500 mt-0.5 shrink-0">&#9679;</span>
                       {c}
@@ -538,17 +584,67 @@ function TierDetail({
         </div>
       )}
 
-      {/* ── Section 5: Applicable Overlays ────────────────── */}
+      {/* ── 8. Where StartSuite Overdelivers ──────────────── */}
+      {e.whereWeOverdeliver && e.whereWeOverdeliver.length > 0 && (
+        <div className="p-5 rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200">
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-purple-700 mb-3">
+            WHERE STARTSUITE OVERDELIVERS
+          </p>
+          <ul className="space-y-2.5">
+            {e.whereWeOverdeliver.map((item, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-foreground leading-relaxed">
+                <span className="text-purple-600 mt-0.5 shrink-0 font-bold">&#10003;</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* ── 9. Membership Lifecycle ──────────────────────── */}
+      {e.membershipLifecycle && (
+        <div className="space-y-4">
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            MEMBERSHIP LIFECYCLE
+          </p>
+          <div className="overflow-x-auto pb-2">
+            <div className="flex gap-3 min-w-max">
+              {([
+                { key: "entry" as const, label: "Entry", color: "border-l-purple-500 bg-purple-50" },
+                { key: "retention" as const, label: "Retention", color: "border-l-green-500 bg-green-50" },
+                { key: "upsell" as const, label: "Upsell", color: "border-l-blue-500 bg-blue-50" },
+                { key: "churnRisk" as const, label: "Churn Risk", color: "border-l-amber-500 bg-amber-50" },
+                { key: "advocacy" as const, label: "Advocacy", color: "border-l-emerald-500 bg-emerald-50" },
+              ] as const).map((stage, i, arr) => (
+                <div key={stage.key} className="flex items-center gap-3">
+                  <div className={`w-52 rounded-lg border-l-4 p-4 border border-border ${stage.color}`}>
+                    <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
+                      {stage.label}
+                    </p>
+                    <p className="text-[10px] text-foreground leading-snug">
+                      {e.membershipLifecycle![stage.key]}
+                    </p>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <span className="text-muted-foreground text-lg shrink-0">&rarr;</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Applicable Overlays ────────────────────────── */}
       <OverlaySection tierId={tier.id} overlays={overlays} />
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   OVERLAY SECTION — maps overlays to tiers via explicit intensity data
+   OVERLAY SECTION
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Overlay intensity by tier from the master summary */
 const overlayIntensity: Record<string, Record<string, string>> = {
   "agency-burned": { startups: "Low", growth: "Medium", established: "High", enterprise: "High", investors: "Low" },
   "ai-overwhelmed": { startups: "Low", growth: "High", established: "High", enterprise: "Medium", investors: "Low" },
