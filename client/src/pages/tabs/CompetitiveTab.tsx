@@ -208,6 +208,19 @@ export default function CompetitiveTab() {
                           <p className="text-xs text-foreground leading-relaxed">{nc.startSuiteAdvantage}</p>
                         </div>
                       </div>
+
+                      {nc.driveUrl && (
+                        <div className="pt-3 border-t border-border">
+                          <a
+                            href={nc.driveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-mono text-xs text-purple-600 hover:text-purple-800 transition-colors"
+                          >
+                            View Full Profile &rarr;
+                          </a>
+                        </div>
+                      )}
                     </div>
                   )}
                 </SectionCard>

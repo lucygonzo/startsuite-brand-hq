@@ -1491,6 +1491,7 @@ export const brandData = {
         threatLevel: "Medium" as const,
         vulnerabilities: ["Volume model reduces quality", "No strategic layer — execution only", "No investor perspective", "Enterprise-focused, not startup-native"],
         startSuiteAdvantage: "Senior-led strategy + execution in one team. Context compounds over time. Investor perspective built in.",
+        driveUrl: "https://docs.google.com/document/d/1fpGPgCVbPc41UJ63TtUFrOOnxTBGtTa1JZqT7TV8ERk/edit?usp=drivesdk",
       },
       {
         name: "DesignJoy",
@@ -1504,6 +1505,7 @@ export const brandData = {
         threatLevel: "Low" as const,
         vulnerabilities: ["One person = capacity ceiling", "No strategy layer", "No content/copy capability", "Cannot scale client load"],
         startSuiteAdvantage: "Full creative operating system vs. design-only. Strategy, context management, competitive research, and content creation — not just graphics.",
+        driveUrl: "https://docs.google.com/document/d/1weJvU8M4_GLfgxMD9GkqRE-JXzdZVixg1wS0NIOaHLI/edit?usp=drivesdk",
       },
       {
         name: "Pentagram",
@@ -1517,6 +1519,7 @@ export const brandData = {
         threatLevel: "Low" as const,
         vulnerabilities: ["Project-based (no compounding)", "6-12 month timelines", "Priced out for startups", "Junior handoffs after pitch"],
         startSuiteAdvantage: "Startup-native speed and pricing. Monthly compounding model vs. one-off projects. Senior-led every engagement.",
+        driveUrl: "https://docs.google.com/document/d/1VEhKTitCM6zgE-ZmfavMLe2Iik5EM4k4ENW4PPsbRkw/edit?usp=drivesdk",
       },
       {
         name: "Canva Teams / AI",
@@ -1530,6 +1533,7 @@ export const brandData = {
         threatLevel: "High" as const,
         vulnerabilities: ["No taste or strategic judgment", "Generic templates = generic brands", "No competitive research or brand intelligence", "No human review layer"],
         startSuiteAdvantage: "Context is the moat. Canva gives everyone the same templates. StartSuite gives you a living intelligence layer that knows your brand, your competitors, and your audience.",
+        driveUrl: "https://docs.google.com/document/d/1es49iWV9Gy6DUyRWvyAZsk6JivH-XwFredh3JJ3rP4I/edit?usp=drivesdk",
       },
       {
         name: "Jasper",
@@ -1543,6 +1547,7 @@ export const brandData = {
         threatLevel: "Medium" as const,
         vulnerabilities: ["Content only — no design, no brand system", "Enterprise-focused, complex onboarding", "No creative direction or strategic judgment", "Requires brand voice training by the user"],
         startSuiteAdvantage: "We train the context for you. Brand Discovery + Brand HQ means the intelligence layer is built by experts, not by the client fumbling with prompts.",
+        driveUrl: "https://docs.google.com/document/d/1PDUgYrwSyR9nVKcO6oWVjyfr0tDDp-2hjzNyNQRHXjc/edit?usp=drivesdk",
       },
       {
         name: "Looka / Brandmark",
@@ -1556,6 +1561,7 @@ export const brandData = {
         threatLevel: "Low" as const,
         vulnerabilities: ["Logo-only — no strategy, no system", "Generic outputs", "No ongoing relationship", "Brands look AI-generated"],
         startSuiteAdvantage: "A brand is not a logo. StartSuite builds the entire creative operating system — identity, voice, strategy, competitive intelligence, and ongoing content.",
+        driveUrl: "https://docs.google.com/document/d/1AhrAArK5V8KAyOFN6l2k-jRlyomGNWd6woayCZq6CXk/edit?usp=drivesdk",
       },
       {
         name: "Pilot (YC-backed)",
@@ -1569,6 +1575,7 @@ export const brandData = {
         threatLevel: "Adjacent" as const,
         vulnerabilities: ["Financial services only — no creative", "Model validates the embedded-services-for-startups approach"],
         startSuiteAdvantage: "Pilot proved the model for finance. StartSuite is applying it to creative. Same thesis: startups need embedded expert services, not agencies.",
+        driveUrl: "https://docs.google.com/document/d/1xzaHIbqvhcRU9XFm92Xnt_pEDw65fp1NcZSSXx9_FpE/edit?usp=drivesdk",
       },
     ],
 
