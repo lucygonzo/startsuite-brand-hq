@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SectionCard, SectionHeader, SubTabNav } from "@/components/BrandUI";
+import { SectionCard, SectionHeader, SubTabNav, KeyTakeaway } from "@/components/BrandUI";
 import { confirmedDecisions, pendingDecisions } from "@/data/brandData";
 import { BookOpen } from "lucide-react";
 
@@ -18,6 +18,8 @@ export default function DecisionLogTab() {
 
   return (
     <div className="space-y-6 tab-content-enter">
+      <KeyTakeaway text="Every strategic decision is logged with context, rationale, and ownership. This is the audit trail that ensures the brand evolves with intention, not drift." />
+
       <SectionHeader
         icon={<BookOpen size={18} />}
         title="Decision Log"

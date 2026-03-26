@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SectionCard, SectionHeader, SubTabNav } from "@/components/BrandUI";
+import { SectionCard, SectionHeader, SubTabNav, KeyTakeaway } from "@/components/BrandUI";
 import { brandData, actionPhases } from "@/data/brandData";
 import { Rocket, ChevronDown, ChevronRight, Check } from "lucide-react";
 
@@ -43,6 +43,8 @@ export default function ActionsTab() {
 
   return (
     <div className="space-y-6 tab-content-enter">
+      <KeyTakeaway text={w.keyTakeaway} />
+
       <SectionHeader
         icon={<Rocket size={18} />}
         title="Actions & Strategy"

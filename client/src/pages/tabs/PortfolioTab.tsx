@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { KeyTakeaway, SectionCard } from "@/components/BrandUI";
 import { brandData } from "@/data/brandData";
 
 export default function PortfolioTab() {
@@ -10,11 +11,7 @@ export default function PortfolioTab() {
 
   return (
     <div className="space-y-8">
-      {/* Key Takeaway */}
-      <div className="border-l-4 pl-4 py-1" style={{ borderColor: "#6607E1" }}>
-        <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-1">Key Takeaway</p>
-        <p className="text-foreground">{p.keyTakeaway}</p>
-      </div>
+      <KeyTakeaway text={p.keyTakeaway} />
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
