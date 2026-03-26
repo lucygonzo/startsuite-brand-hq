@@ -6,6 +6,8 @@ import {
   CheckCircle2, Gauge, Users, ShoppingCart, Rocket,
 } from "lucide-react";
 
+const GAP_TAKEAWAY = "StartSuite has strong brand identity and positioning but critical gaps in market awareness, published proof points, and pricing transparency. The pivot to 'creative operating system' is internally clear but has not yet reached the market.";
+
 const subTabs = [
   { id: "perception", label: "Perception" },
   { id: "funnels", label: "Funnels" },
@@ -267,6 +269,7 @@ export default function GapAnalysisTab() {
 
   return (
     <div className="space-y-6 tab-content-enter">
+      <KeyTakeaway text={GAP_TAKEAWAY} />
       <SubTabNav tabs={subTabs} active={activeTab} onChange={setActiveTab} />
 
       {activeTab === "perception" && <PerceptionView />}
