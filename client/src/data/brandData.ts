@@ -1482,6 +1482,8 @@ export const brandData = {
       {
         name: "Superside",
         category: "Startup-Focused Creative Platform",
+        competitorCategory: "Direct" as const,
+        classification: "Watch" as const,
         founded: "2015",
         hq: "Oslo, Norway (remote-first)",
         teamSize: "700+",
@@ -1496,6 +1498,8 @@ export const brandData = {
       {
         name: "DesignJoy",
         category: "Unlimited Design Subscription",
+        competitorCategory: "Direct" as const,
+        classification: "Watch" as const,
         founded: "2021",
         hq: "US (solo founder)",
         teamSize: "1 (Brett Williams)",
@@ -1510,6 +1514,8 @@ export const brandData = {
       {
         name: "Pentagram",
         category: "Traditional Design Agency",
+        competitorCategory: "Direct" as const,
+        classification: "Adjacent" as const,
         founded: "1972",
         hq: "London / New York / Austin",
         teamSize: "250+",
@@ -1524,6 +1530,8 @@ export const brandData = {
       {
         name: "Canva Teams / AI",
         category: "AI-Powered Design Tool",
+        competitorCategory: "Adjacent" as const,
+        classification: "High Threat" as const,
         founded: "2013",
         hq: "Sydney, Australia",
         teamSize: "4,000+",
@@ -1538,6 +1546,8 @@ export const brandData = {
       {
         name: "Jasper",
         category: "AI Content Platform",
+        competitorCategory: "Adjacent" as const,
+        classification: "Watch" as const,
         founded: "2021",
         hq: "Austin, TX",
         teamSize: "400+",
@@ -1552,6 +1562,8 @@ export const brandData = {
       {
         name: "Looka / Brandmark",
         category: "AI Logo & Brand Generator",
+        competitorCategory: "Adjacent" as const,
+        classification: "Adjacent" as const,
         founded: "2016 / 2017",
         hq: "Toronto / Global",
         teamSize: "50-100",
@@ -1566,6 +1578,8 @@ export const brandData = {
       {
         name: "Pilot (YC-backed)",
         category: "Startup Services Platform",
+        competitorCategory: "Similar Model" as const,
+        classification: "Opportunity" as const,
         founded: "2017",
         hq: "San Francisco",
         teamSize: "400+",

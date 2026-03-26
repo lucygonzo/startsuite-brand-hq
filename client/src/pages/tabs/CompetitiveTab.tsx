@@ -5,11 +5,20 @@ import { SectionCard, KeyTakeaway, SectionHeader, SubTabNav } from "@/components
 import {
   AlertTriangle, CheckCircle2, BarChart3, Zap, ChevronDown, ChevronUp,
   Shield, Users, DollarSign, Calendar, Target, Swords,
-  ArrowRight,
+  ArrowRight, Handshake,
 } from "lucide-react";
 import { brandData } from "@/data/brandData";
 
-/* ── Threat-level palette ─────────────────────────────────────────────────── */
+/* ── Classification palette (replaces threat-level for display) ───────────── */
+
+const CLASSIFICATION_COLORS: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+  "High Threat": { bg: "bg-red-100",   text: "text-red-700",   border: "border-red-200",   dot: "bg-red-500" },
+  Watch:         { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", dot: "bg-amber-500" },
+  Opportunity:   { bg: "bg-green-100", text: "text-green-700", border: "border-green-200", dot: "bg-green-500" },
+  Adjacent:      { bg: "bg-blue-100",  text: "text-blue-700",  border: "border-blue-200",  dot: "bg-blue-500" },
+};
+
+/* ── Legacy threat-level palette (kept for head-to-head table) ───────────── */
 
 const THREAT_COLORS: Record<string, { bg: string; text: string; border: string; dot: string }> = {
   High:     { bg: "bg-red-100",   text: "text-red-700",   border: "border-red-200",   dot: "bg-red-500" },
@@ -48,25 +57,27 @@ function CapIcon({ value }: { value: Cap }) {
   return <span className="text-muted-foreground/30 block text-center">&mdash;</span>;
 }
 
-/* ── Threat tiers (for "Where We Fit" summary) ────────────────────────────── */
+/* ── Landscape tiers (for "Where We Fit" summary) ─────────────────────────── */
 
-interface ThreatEntry { name: string; level: "HIGH" | "MEDIUM" | "LOW" | "NONE"; note?: string }
+type ClassificationLevel = "HIGH_THREAT" | "WATCH" | "OPPORTUNITY" | "ADJACENT";
 
-const THREAT_TIERS: ThreatEntry[] = [
-  { name: "Canva Teams / AI", level: "HIGH" },
-  { name: "Jasper",           level: "MEDIUM" },
-  { name: "Superside",        level: "MEDIUM" },
-  { name: "DesignJoy",        level: "LOW" },
-  { name: "Pentagram",        level: "LOW" },
-  { name: "Looka / Brandmark",level: "LOW" },
-  { name: "Pilot (YC-backed)",level: "LOW", note: "Adjacent market" },
+interface LandscapeEntry { name: string; level: ClassificationLevel; note?: string }
+
+const LANDSCAPE_TIERS: LandscapeEntry[] = [
+  { name: "Canva Teams / AI", level: "HIGH_THREAT" },
+  { name: "Superside",        level: "WATCH" },
+  { name: "DesignJoy",        level: "WATCH" },
+  { name: "Jasper",           level: "WATCH" },
+  { name: "Pilot (YC-backed)",level: "OPPORTUNITY", note: "Same model, potential partner" },
+  { name: "Pentagram",        level: "ADJACENT" },
+  { name: "Looka / Brandmark",level: "ADJACENT" },
 ];
 
-const TIER_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  HIGH:   { bg: "bg-red-100",   text: "text-red-700",   label: "High" },
-  MEDIUM: { bg: "bg-amber-100", text: "text-amber-700", label: "Medium" },
-  LOW:    { bg: "bg-green-100", text: "text-green-700",  label: "Low" },
-  NONE:   { bg: "bg-gray-100",  text: "text-gray-400 line-through", label: "None" },
+const LANDSCAPE_STYLE: Record<string, { bg: string; text: string; label: string }> = {
+  HIGH_THREAT:  { bg: "bg-red-100",   text: "text-red-700",   label: "High Threat" },
+  WATCH:        { bg: "bg-amber-100", text: "text-amber-700", label: "Watch" },
+  OPPORTUNITY:  { bg: "bg-green-100", text: "text-green-700", label: "Opportunity" },
+  ADJACENT:     { bg: "bg-blue-100",  text: "text-blue-700",  label: "Adjacent" },
 };
 
 /* ── Priority + owner for recommendations ─────────────────────────────────── */
@@ -85,16 +96,19 @@ const PRIORITY_STYLE: Record<string, { bg: string; text: string }> = {
   Medium: { bg: "bg-blue-100",  text: "text-blue-700" },
 };
 
-/* ── Threat filter helper ─────────────────────────────────────────────────── */
+/* ── Classification filter + sort helpers ─────────────────────────────────── */
 
-const THREAT_ORDER: Record<string, number> = { High: 0, Medium: 1, Low: 2, Adjacent: 3 };
+const CLASSIFICATION_ORDER: Record<string, number> = { "High Threat": 0, Watch: 1, Opportunity: 2, Adjacent: 3 };
+
+const ALL_CLASSIFICATIONS = ["High Threat", "Watch", "Opportunity", "Adjacent"] as const;
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function CompetitiveTab() {
   const [sub, setSub] = useState("where-we-fit");
   const [expandedCompetitors, setExpandedCompetitors] = useState<Set<number>>(new Set());
-  const [threatFilter, setThreatFilter] = useState<string>("All");
+  const [categoryFilter, setCategoryFilter] = useState<string>("All");
+  const [classificationFilter, setClassificationFilter] = useState<string>("All");
   const comp = brandData.competitive;
 
   const toggleCompetitor = (index: number) => {
@@ -106,13 +120,18 @@ export default function CompetitiveTab() {
     });
   };
 
-  /* Sort + filter named competitors */
-  const sortedCompetitors = [...comp.namedCompetitors]
-    .sort((a, b) => (THREAT_ORDER[a.threatLevel] ?? 9) - (THREAT_ORDER[b.threatLevel] ?? 9));
+  /* Derive which category pills to show (only categories with competitors) */
+  const activeCategories = Array.from(
+    new Set(comp.namedCompetitors.map((nc) => nc.competitorCategory))
+  );
 
-  const filteredCompetitors = threatFilter === "All"
-    ? sortedCompetitors
-    : sortedCompetitors.filter((nc) => nc.threatLevel === threatFilter);
+  /* Sort by classification, then filter by both category + classification */
+  const sortedCompetitors = [...comp.namedCompetitors]
+    .sort((a, b) => (CLASSIFICATION_ORDER[a.classification] ?? 9) - (CLASSIFICATION_ORDER[b.classification] ?? 9));
+
+  const filteredCompetitors = sortedCompetitors
+    .filter((nc) => categoryFilter === "All" || nc.competitorCategory === categoryFilter)
+    .filter((nc) => classificationFilter === "All" || nc.classification === classificationFilter);
 
   return (
     <div className="space-y-6 tab-content-enter">
@@ -221,22 +240,22 @@ export default function CompetitiveTab() {
             </div>
           </SectionCard>
 
-          {/* D — Threat Summary */}
+          {/* D — Landscape at a Glance */}
           <SectionCard>
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-4">Threat Summary</p>
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-4">Landscape at a Glance</p>
             <div className="space-y-3">
-              {(["HIGH", "MEDIUM", "LOW", "NONE"] as const).map((level) => {
-                const entries = THREAT_TIERS.filter((t) => t.level === level);
+              {(["HIGH_THREAT", "WATCH", "OPPORTUNITY", "ADJACENT"] as const).map((level) => {
+                const entries = LANDSCAPE_TIERS.filter((t) => t.level === level);
                 if (entries.length === 0) return null;
-                const style = TIER_STYLE[level];
+                const style = LANDSCAPE_STYLE[level];
                 return (
                   <div key={level} className="flex items-start gap-3">
-                    <Badge className={`text-xs shrink-0 w-16 justify-center ${style.bg} ${style.text} border border-current/10`}>
+                    <Badge className={`text-xs shrink-0 w-24 justify-center ${style.bg} ${style.text} border border-current/10`}>
                       {style.label}
                     </Badge>
                     <div className="flex flex-wrap gap-1.5">
                       {entries.map((e, j) => (
-                        <span key={j} className={`text-xs px-2 py-0.5 rounded-md border ${style.bg} ${style.text} ${e.level === "NONE" ? "line-through" : ""}`}>
+                        <span key={j} className={`text-xs px-2 py-0.5 rounded-md border ${style.bg} ${style.text}`}>
                           {e.name}{e.note ? ` (${e.note})` : ""}
                         </span>
                       ))}
@@ -255,29 +274,65 @@ export default function CompetitiveTab() {
       {sub === "competitors" && (
         <div className="space-y-6">
 
-          {/* Filter pills */}
-          <div className="flex flex-wrap gap-2">
-            {["All", "High", "Medium", "Low", "Adjacent"].map((level) => (
-              <button
-                key={level}
-                onClick={() => setThreatFilter(level)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                  threatFilter === level
-                    ? "bg-purple-100 text-purple-700 border-purple-300"
-                    : "bg-muted/40 text-muted-foreground border-border hover:bg-muted"
-                }`}
-              >
-                {level === "All" ? "All Competitors" : `${level} Threat`}
-              </button>
-            ))}
+          {/* Row 1 — Category filters */}
+          <div>
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Category</p>
+            <div className="flex flex-wrap gap-2">
+              {["All", ...activeCategories].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategoryFilter(cat)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    categoryFilter === cat
+                      ? "bg-purple-100 text-purple-700 border-purple-300"
+                      : "bg-muted/40 text-muted-foreground border-border hover:bg-muted"
+                  }`}
+                >
+                  {cat === "All" ? "All Categories" : cat}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Row 2 — Classification filters */}
+          <div>
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Classification</p>
+            <div className="flex flex-wrap gap-2">
+              {["All", ...ALL_CLASSIFICATIONS].map((cls) => {
+                const clsColor = CLASSIFICATION_COLORS[cls];
+                return (
+                  <button
+                    key={cls}
+                    onClick={() => setClassificationFilter(cls)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                      classificationFilter === cls
+                        ? clsColor ? `${clsColor.bg} ${clsColor.text} ${clsColor.border}` : "bg-purple-100 text-purple-700 border-purple-300"
+                        : "bg-muted/40 text-muted-foreground border-border hover:bg-muted"
+                    }`}
+                  >
+                    {cls === "All" ? "All Classifications" : cls}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Active filter summary */}
+          {(categoryFilter !== "All" || classificationFilter !== "All") && (
+            <p className="text-xs text-muted-foreground">
+              Showing {filteredCompetitors.length} of {comp.namedCompetitors.length} competitors
+              {categoryFilter !== "All" && <> in <span className="font-medium text-foreground">{categoryFilter}</span></>}
+              {classificationFilter !== "All" && <> classified as <span className="font-medium text-foreground">{classificationFilter}</span></>}
+            </p>
+          )}
 
           {/* Competitor cards */}
           <div className="space-y-3">
             {filteredCompetitors.map((nc, _fi) => {
               const origIndex = comp.namedCompetitors.indexOf(nc);
               const isExpanded = expandedCompetitors.has(origIndex);
-              const threatColor = THREAT_COLORS[nc.threatLevel] || THREAT_COLORS.Low;
+              const clsColor = CLASSIFICATION_COLORS[nc.classification] || CLASSIFICATION_COLORS.Watch;
+              const isOpportunity = nc.classification === "Opportunity";
               return (
                 <SectionCard key={origIndex} className="card-lift">
                   <button
@@ -289,13 +344,13 @@ export default function CompetitiveTab() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-display text-base font-semibold text-foreground">{nc.name}</h3>
-                          <span className="text-xs text-muted-foreground">{nc.category}</span>
+                          <span className="font-mono text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded">{nc.competitorCategory}</span>
+                          <p className="text-xs italic text-muted-foreground">&ldquo;{nc.tagline}&rdquo;</p>
                         </div>
-                        <p className="text-xs italic text-muted-foreground mt-0.5">&ldquo;{nc.tagline}&rdquo;</p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <Badge className={`text-xs ${threatColor.bg} ${threatColor.text} ${threatColor.border} border`}>
-                          {nc.threatLevel}
+                        <Badge className={`text-xs ${clsColor.bg} ${clsColor.text} ${clsColor.border} border`}>
+                          {nc.classification}
                         </Badge>
                         <span className="text-xs text-muted-foreground hidden sm:block">{nc.pricing}</span>
                         {isExpanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
@@ -305,6 +360,14 @@ export default function CompetitiveTab() {
 
                   {isExpanded && (
                     <div className="mt-4 pt-4 border-t border-border space-y-4">
+                      {/* Why they matter */}
+                      <div className={`p-3 rounded-xl border ${isOpportunity ? "bg-green-50 border-green-200" : "bg-muted/30 border-border"}`}>
+                        <p className={`font-mono text-[10px] font-semibold uppercase tracking-widest mb-1 ${isOpportunity ? "text-green-700" : "text-muted-foreground"}`}>
+                          Why They Matter
+                        </p>
+                        <p className="text-xs text-foreground leading-relaxed">{nc.startSuiteAdvantage.split(".")[0]}.</p>
+                      </div>
+
                       {/* 3-column top grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="space-y-2">
@@ -330,19 +393,35 @@ export default function CompetitiveTab() {
                         </div>
                       </div>
 
-                      {/* Vulnerabilities + Advantage */}
+                      {/* Vulnerabilities/Partnership + Advantage */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Vulnerabilities</p>
-                          <ul className="space-y-1">
-                            {nc.vulnerabilities.map((v, j) => (
-                              <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
-                                <AlertTriangle size={11} className="text-amber-600 mt-0.5 shrink-0" />
-                                {v}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                        {isOpportunity ? (
+                          <div className="p-3 rounded-xl bg-green-50 border border-green-200">
+                            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-green-700 mb-2 flex items-center gap-1.5">
+                              <Handshake size={11} className="shrink-0" /> Partnership Potential
+                            </p>
+                            <ul className="space-y-1">
+                              {nc.vulnerabilities.map((v, j) => (
+                                <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                                  <CheckCircle2 size={11} className="text-green-600 mt-0.5 shrink-0" />
+                                  {v}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Vulnerabilities</p>
+                            <ul className="space-y-1">
+                              {nc.vulnerabilities.map((v, j) => (
+                                <li key={j} className="flex items-start gap-1.5 text-xs text-foreground">
+                                  <AlertTriangle size={11} className="text-amber-600 mt-0.5 shrink-0" />
+                                  {v}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                         <div className="p-3 rounded-xl bg-purple-50 border border-purple-200">
                           <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-purple-700 mb-2">StartSuite Advantage</p>
                           <p className="text-xs text-foreground leading-relaxed">{nc.startSuiteAdvantage}</p>
@@ -381,7 +460,7 @@ export default function CompetitiveTab() {
                     <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Content</th>
                     <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Intel</th>
                     <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Compounds</th>
-                    <th className="text-left py-2 pl-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Threat</th>
+                    <th className="text-left py-2 pl-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Classification</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -398,7 +477,7 @@ export default function CompetitiveTab() {
                   {/* Competitor rows */}
                   {sortedCompetitors.map((nc, i) => {
                     const caps = CAPABILITY_MAP[nc.name] || { strategy: false, design: false, content: false, intel: false, compounds: false };
-                    const threatColor = THREAT_COLORS[nc.threatLevel] || THREAT_COLORS.Low;
+                    const clsColor = CLASSIFICATION_COLORS[nc.classification] || CLASSIFICATION_COLORS.Watch;
                     return (
                       <tr key={i} className="border-b border-border hover:bg-muted/30 transition-colors">
                         <td className="py-2.5 pr-3 font-medium text-foreground">{nc.name}</td>
@@ -408,7 +487,7 @@ export default function CompetitiveTab() {
                         <td className="py-2.5 px-3"><CapIcon value={caps.intel} /></td>
                         <td className="py-2.5 px-3"><CapIcon value={caps.compounds} /></td>
                         <td className="py-2.5 pl-3">
-                          <Badge className={`text-xs ${threatColor.bg} ${threatColor.text} ${threatColor.border} border`}>{nc.threatLevel}</Badge>
+                          <Badge className={`text-xs ${clsColor.bg} ${clsColor.text} ${clsColor.border} border`}>{nc.classification}</Badge>
                         </td>
                       </tr>
                     );
