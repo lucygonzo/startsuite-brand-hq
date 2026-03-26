@@ -81,13 +81,13 @@ export default function IdentityTab() {
       {sub === "perception" && (
         <div className="space-y-5">
           <SectionCard>
-            <SectionHeader icon={<Radar size={16} />} title="First Impression" subtitle="What a founder experiences in the first 10 seconds on start-suite.com" />
+            <SectionHeader icon={<Radar size={16} />} title="First Impression" subtitle="What prospects across all 5 tiers experience in the first 10 seconds on start-suite.com" />
             <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200">
               <p className="text-sm text-foreground leading-relaxed">{id.audiencePerception.firstImpression}</p>
             </div>
           </SectionCard>
           <SectionCard>
-            <SectionHeader icon={<Search size={16} />} title="Key Questions in the Founder's Mind" subtitle="What they're asking that the brand needs to answer" />
+            <SectionHeader icon={<Search size={16} />} title="Key Questions Across Audience Tiers" subtitle="What prospects from Day-Ones to Flagships are asking that the brand needs to answer" />
             <div className="space-y-2">
               {id.audiencePerception.keyQuestions.map((q, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border">

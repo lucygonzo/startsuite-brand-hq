@@ -83,12 +83,13 @@ export default function GTMTab() {
 
       {sub === "channels" && (
         <SectionCard>
-          <SectionHeader icon={<BarChart3 size={16} />} title="Channel Mix" subtitle="Investment level and phase for each acquisition channel" />
+          <SectionHeader icon={<BarChart3 size={16} />} title="Channel Mix" subtitle="Investment level, phase, and primary audience tier for each acquisition channel" />
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
                   <th className="text-left py-2 pr-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Channel</th>
+                  <th className="text-left py-2 px-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Primary Tier</th>
                   <th className="text-left py-2 px-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Investment</th>
                   <th className="text-center py-2 pl-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Phase</th>
                 </tr>
@@ -97,10 +98,11 @@ export default function GTMTab() {
                 {g.channels.map((ch, i) => (
                   <tr key={i} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="py-3 pr-4 text-sm font-medium text-foreground">{ch.channel}</td>
+                    <td className="py-3 px-4 text-xs text-purple-700 font-medium">{ch.tier}</td>
                     <td className="py-3 px-4 text-sm text-muted-foreground">{ch.investment}</td>
                     <td className="py-3 pl-4 text-center">
                       <Badge variant="outline" className={`text-xs ${
-                        ch.status === "Phase 1" ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                        ch.status.includes("Phase 1") ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200"
                       }`}>{ch.status}</Badge>
                     </td>
                   </tr>

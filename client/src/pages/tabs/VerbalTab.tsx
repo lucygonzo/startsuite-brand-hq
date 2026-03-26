@@ -2,13 +2,23 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard, KeyTakeaway, SubTabNav } from "@/components/BrandUI";
 import {
-  AlertTriangle, CheckCircle2, Copy, Check, Info, ShieldAlert, XCircle, ArrowRight, HelpCircle,
+  AlertTriangle, CheckCircle2, Copy, Check, Info, ShieldAlert, XCircle, ArrowRight, HelpCircle, Users, MessageSquare,
 } from "lucide-react";
 import { brandData } from "@/data/brandData";
+
+const TIER_COLORS: Record<string, { bg: string; border: string; text: string; pill: string; pillActive: string }> = {
+  Universal: { bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700", pill: "bg-muted text-muted-foreground hover:bg-purple-100", pillActive: "ss-gradient text-white shadow-md" },
+  Startups: { bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700", pill: "bg-muted text-muted-foreground hover:bg-blue-100", pillActive: "bg-blue-600 text-white shadow-md" },
+  "Growth Companies": { bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-700", pill: "bg-muted text-muted-foreground hover:bg-emerald-100", pillActive: "bg-emerald-600 text-white shadow-md" },
+  "Established Businesses": { bg: "bg-amber-50", border: "border-amber-300", text: "text-amber-700", pill: "bg-muted text-muted-foreground hover:bg-amber-100", pillActive: "bg-amber-600 text-white shadow-md" },
+  "Large Orgs / Enterprise": { bg: "bg-slate-50", border: "border-slate-400", text: "text-slate-700", pill: "bg-muted text-muted-foreground hover:bg-slate-200", pillActive: "bg-slate-700 text-white shadow-md" },
+  "Investors & Accelerators": { bg: "bg-rose-50", border: "border-rose-300", text: "text-rose-700", pill: "bg-muted text-muted-foreground hover:bg-rose-100", pillActive: "bg-rose-600 text-white shadow-md" },
+};
 
 export default function VerbalTab() {
   const [sub, setSub] = useState("voice");
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [activeTier, setActiveTier] = useState("Universal");
   const vb = brandData.verbalIdentity;
 
   const handleCopy = (text: string, idx: number) => {
@@ -16,6 +26,9 @@ export default function VerbalTab() {
     setCopiedIdx(idx);
     setTimeout(() => setCopiedIdx(null), 2000);
   };
+
+  const selectedAudience = vb.audienceMessaging.find((a) => a.tier === activeTier) ?? vb.audienceMessaging[0];
+  const tierColor = TIER_COLORS[activeTier] ?? TIER_COLORS.Universal;
 
   return (
     <div className="space-y-6 tab-content-enter">
@@ -25,6 +38,7 @@ export default function VerbalTab() {
         tabs={[
           { id: "voice", label: "Voice & Tone" },
           { id: "messaging", label: "Messaging Pillars" },
+          { id: "audience", label: "Audience Messaging" },
           { id: "copy", label: "Copy Blocks" },
           { id: "rules", label: "Language Rules" },
           { id: "whatnot", label: "What NOT to Say" },
@@ -120,6 +134,123 @@ export default function VerbalTab() {
         </div>
       )}
 
+      {/* ── AUDIENCE MESSAGING ─────────────────────────────────────────────────── */}
+      {sub === "audience" && (
+        <div className="space-y-5">
+          {/* Intro callout */}
+          <div className="p-4 rounded-xl border-2 border-purple-200 bg-purple-50/40">
+            <div className="flex items-start gap-3">
+              <Users size={20} className="text-purple-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-purple-900 mb-1">One Voice, Five Dials</p>
+                <p className="text-xs text-purple-800 leading-relaxed">StartSuite has one umbrella brand voice, but the messaging dials turn depending on the audience tier. Select a tier below to see how headline, tone, sample copy, and guardrails adapt.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tier selector pills */}
+          <div className="flex flex-wrap gap-2">
+            {vb.audienceMessaging.map((a) => {
+              const colors = TIER_COLORS[a.tier] ?? TIER_COLORS.Universal;
+              const isActive = activeTier === a.tier;
+              return (
+                <button
+                  key={a.tier}
+                  onClick={() => setActiveTier(a.tier)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${isActive ? colors.pillActive : colors.pill}`}
+                >
+                  {a.tier}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Headline + subline */}
+          <SectionCard>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Headline</p>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">{selectedAudience.headline}</h2>
+            <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{selectedAudience.subline}</p>
+          </SectionCard>
+
+          {/* Tone guidance */}
+          <div className={`p-4 rounded-xl border ${tierColor.border} ${tierColor.bg}`}>
+            <div className="flex items-start gap-3">
+              <MessageSquare size={16} className={`${tierColor.text} mt-0.5 shrink-0`} />
+              <div>
+                <p className={`text-xs font-semibold uppercase tracking-widest ${tierColor.text} mb-1`}>Tone Guidance</p>
+                <p className="text-sm text-foreground leading-relaxed">{selectedAudience.tone}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sample post — social card style */}
+          <SectionCard className="card-lift">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full ss-gradient flex items-center justify-center text-white text-xs font-bold">SS</div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">StartSuite</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">LinkedIn &middot; Sample Post</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleCopy(selectedAudience.samplePost, 600)}
+                className="text-xs text-purple-600 flex items-center gap-1 hover:text-purple-800 transition-colors"
+              >
+                {copiedIdx === 600 ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
+                {copiedIdx === 600 ? "Copied" : "Copy post"}
+              </button>
+            </div>
+            <div className="p-4 rounded-lg bg-muted/30 border border-border">
+              <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{selectedAudience.samplePost}</p>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-2 font-mono">Tier: {selectedAudience.tier} &middot; Ready-to-post with minor personalization</p>
+          </SectionCard>
+
+          {/* What NOT to say — tier-specific */}
+          <div>
+            <h3 className="font-display text-base font-semibold mb-3 flex items-center gap-2">
+              <AlertTriangle size={16} className="text-amber-600" />
+              What NOT to Say to {selectedAudience.tier === "Universal" ? "Any Audience" : selectedAudience.tier}
+            </h3>
+            <div className="space-y-2">
+              {selectedAudience.avoid.map((item, i) => (
+                <div key={i} className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-300">
+                  <XCircle size={13} className="text-amber-700 mt-0.5 shrink-0" />
+                  <p className="text-xs text-amber-900 leading-relaxed font-medium">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick comparison — all tiers at a glance */}
+          {activeTier === "Universal" && (
+            <SectionCard>
+              <h3 className="font-display text-base font-semibold mb-4">All Tiers at a Glance</h3>
+              <div className="space-y-3">
+                {vb.audienceMessaging.filter((a) => a.tier !== "Universal").map((a, i) => {
+                  const c = TIER_COLORS[a.tier] ?? TIER_COLORS.Universal;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setActiveTier(a.tier)}
+                      className={`w-full text-left p-4 rounded-xl border ${c.border} ${c.bg} hover:shadow-sm transition-all`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <p className={`text-xs font-semibold uppercase tracking-widest ${c.text}`}>{a.tier}</p>
+                        <ArrowRight size={14} className={c.text} />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{a.headline}</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{a.subline}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </SectionCard>
+          )}
+        </div>
+      )}
+
       {sub === "copy" && (
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">Pre-written copy blocks for different contexts. Click any block to copy.</p>
@@ -181,6 +312,27 @@ export default function VerbalTab() {
               </div>
             </div>
           </div>
+
+          {/* Tier-specific avoids cross-reference */}
+          <SectionCard>
+            <h3 className="font-display text-base font-semibold mb-3 flex items-center gap-2">
+              <Users size={16} className="text-purple-600" />
+              Audience-Specific Guardrails
+            </h3>
+            <p className="text-xs text-muted-foreground mb-3">Each audience tier has its own avoid list. See the Audience Messaging tab for full context, or review the tier-specific rules below.</p>
+            <div className="space-y-3">
+              {vb.audienceMessaging.map((a, i) => (
+                <div key={i} className="p-3 rounded-lg border border-border">
+                  <p className="text-xs font-semibold text-foreground mb-2">{a.tier}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {a.avoid.map((item, j) => (
+                      <span key={j} className="text-[11px] px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-800">{item}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
 
           {/* Anti-patterns */}
           {vb.whatNotToSay.antiPatterns.map((pattern, i) => (

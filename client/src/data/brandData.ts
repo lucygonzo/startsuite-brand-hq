@@ -552,6 +552,57 @@ export const brandData = {
         "Could a competitor say the exact same thing? If yes, make it more specific to our model.",
       ],
     },
+
+    audienceMessaging: [
+      {
+        tier: "Universal",
+        headline: "Your creative operating system.",
+        subline: "Brand intelligence that compounds. Context that can't be replaced.",
+        tone: "Confident, direct, strategic. Speaks to the problem, not the product.",
+        samplePost: "Agencies sell you projects. We build you a system. Brand Discovery maps your market, your competitors, and your positioning. Brand HQ keeps it alive, updated, and working for you every month. The deeper the context, the harder we are to replace. That's not a pitch \u2014 it's how it works.",
+        avoid: ["Agency language", "AI-tool positioning", "Content machine framing"],
+      },
+      {
+        tier: "Startups",
+        headline: "Look like you've raised 5x what you have.",
+        subline: "Brand Discovery gives you the foundation. Membership keeps it compounding.",
+        tone: "Fast, empathetic, peer-to-peer. Speak to the shame of looking amateur and the relief of having it handled.",
+        samplePost: "Your pitch deck was designed by your co-founder in Keynote. Your website was built by a developer friend who 'knows design.' Your investor just texted: 'The brand feels inconsistent.' You don't need an agency. You need a creative operating system that moves as fast as you do. That's what we built.",
+        avoid: ["'Brand strategy' \u2014 they think they need a logo, not strategy", "'Investment in your brand' \u2014 sounds like a cost, not a solution", "Anything that sounds like a 6-month timeline"],
+      },
+      {
+        tier: "Growth Companies",
+        headline: "The brand system you don't have time to build yourself.",
+        subline: "Your first marketing hire shouldn't spend 6 months building infrastructure. We build it in weeks.",
+        tone: "Relieving, system-oriented. Speak to the overwhelm of building AND executing simultaneously.",
+        samplePost: "You just made your first marketing hire. They inherited 127 files in 4 Google Drive folders, no brand guidelines, and a CEO who thinks marketing is 'making things look nice.' They can't build your brand system AND execute campaigns at the same time. We build the system. They execute on it. Everyone wins.",
+        avoid: ["'We'll handle everything' \u2014 they want empowerment, not dependency", "'Unlimited revisions' \u2014 signals agency model", "Startup-only language \u2014 they're past that stage"],
+      },
+      {
+        tier: "Established Businesses",
+        headline: "The brand intelligence that defends your decisions.",
+        subline: "Competitive monitoring. Monthly reports. A system that proves your strategy is working.",
+        tone: "Authoritative, data-backed, defensive. Speak to the need to justify decisions to leadership.",
+        samplePost: "Your CEO forwards competitor websites every Monday. Your CMO asks for 'the data behind that decision' in every meeting. Your team of 3 manages 4 divisions and you haven't updated the brand guidelines since 2023. You don't need more creative output. You need brand intelligence \u2014 competitive monitoring, decision tracking, and monthly proof that your strategy is working.",
+        avoid: ["'We're an agency' \u2014 they're agency-burned", "'Retainer' \u2014 use 'membership' or 'subscription'", "Hand-holding language \u2014 they're sophisticated buyers"],
+      },
+      {
+        tier: "Large Orgs / Enterprise",
+        headline: "Make your team of 12 perform like 20.",
+        subline: "Strategic augmentation, not another vendor. We think at your level.",
+        tone: "Peer-level, strategic, understated. No flash, no hype \u2014 substance. Match their sophistication or lose immediately.",
+        samplePost: "You've worked with Pentagram. You've briefed BBDO. You have a team of 12 and it's still not enough. You don't need another agency pitch. You need a creative operating system that augments your team with competitive intelligence, brand management infrastructure, and AI-accelerated execution \u2014 without the overhead of more headcount.",
+        avoid: ["'We're excited to work with you' \u2014 amateur", "'AI-powered' without showing what that means concretely", "Any implication they need hand-holding", "Startup language \u2014 they're not a startup"],
+      },
+      {
+        tier: "Investors & Accelerators",
+        headline: "Your portfolio's brand is your fund's brand.",
+        subline: "Every portfolio company gets a creative operating system. Demo day stops being embarrassing.",
+        tone: "ROI-focused, portfolio-level thinking. Speak to fund returns, not individual company benefits.",
+        samplePost: "Your portfolio companies spend weeks on pitch decks instead of talking to customers. Demo day has 3 polished brands and 10 that look like they were built over a weekend. Better brands = better fundraising = better fund returns. StartSuite is QuickBooks for your portfolio's marketing \u2014 the thing every company should have from day one.",
+        avoid: ["Individual company language \u2014 they think at portfolio level", "'Creative' \u2014 they care about outcomes, not process", "Anything that sounds like another vendor to manage"],
+      },
+    ],
   },
 
   // ── SERVICES ─────────────────────────────────────────────────────────────────
@@ -1558,39 +1609,39 @@ export const brandData = {
         platform: "LinkedIn",
         url: "linkedin.com/company/startsuite",
         status: "Primary — Active",
-        contentFocus: "Thought leadership, brand strategy insights, expert-level content that passes the 'would an expert share this?' test. Reagan + Lucy personal brands as primary distribution.",
+        contentFocus: "Thought leadership, brand strategy insights, expert-level content that passes the 'would an expert share this?' test. Reagan + Lucy personal brands as primary distribution. Serves all 5 tiers — Startups through Flagships and Multipliers.",
         frequency: "3x/week (Reagan + Lucy personal brands)",
       },
       {
         platform: "YouTube",
         url: "youtube.com/@startsuite",
         status: "Secondary — Long-Form Authority",
-        contentFocus: "Long-form educational content, behind-the-scenes of the creative operating system, monthly shoot day content (war room internal + expert guest interviews).",
+        contentFocus: "Long-form educational content, behind-the-scenes of the creative operating system, monthly shoot day content (war room internal + expert guest interviews). Primary tiers: Growth Companies (Scalers) and Established Businesses (Operators) who consume in-depth strategy content.",
         frequency: "2-4x/month from shoot day material",
       },
       {
         platform: "Instagram",
         url: "instagram.com/startsuite",
         status: "Presence Only — No Active Strategy",
-        contentFocus: "Brand work showcase, repurposed LinkedIn content. Not a primary channel. No active content strategy.",
+        contentFocus: "Brand work showcase, repurposed LinkedIn content. Not a primary channel. No active content strategy. Serves as a visual portfolio that resonates with Startups and Growth tiers checking social proof.",
         frequency: "1-2x/week (repurposed only)",
       },
       {
         platform: "TikTok",
         url: "",
         status: "OFF",
-        contentFocus: "Not worth the effort for B2B audience. Decision confirmed in March 2026 board meeting. Killed permanently.",
+        contentFocus: "Not worth the effort for B2B audience across any tier. Decision confirmed in March 2026 board meeting. Killed permanently.",
         frequency: "None",
       },
     ],
 
     contentStrategy: {
       pillars: [
-        "Brand strategy education — expert-level insights on positioning, competitive intelligence, and brand architecture",
-        "Behind-the-scenes of the creative operating system — how Brand HQ works, competitive research process, AI tools in action",
-        "Client transformation stories — how companies went from brand chaos to brand system (with discretion for private clients)",
-        "AI-empowered creative insights — how senior judgment + AI acceleration produces better outcomes than either alone",
-        "Monthly shoot day content: war room internal discussions + external expert guest interviews",
+        "Brand strategy education — expert-level insights on positioning, competitive intelligence, and brand architecture. Tactical tips for Startups (Day-Ones), strategic depth for Growth Companies (Scalers) and Established Businesses (Operators).",
+        "Behind-the-scenes of the creative operating system — how Brand HQ works, competitive research process, AI tools in action. Resonates most with Growth and Established tiers who value systems thinking.",
+        "Client transformation stories — how companies across all 5 tiers went from brand chaos to brand system (with discretion for private clients). Tier-specific proof points: speed for Startups, scale for Growth, complexity-handling for Operators and Flagships.",
+        "AI-empowered creative insights — how senior judgment + AI acceleration produces better outcomes than either alone. Especially compelling for Enterprise (Flagships) evaluating build-vs-buy decisions.",
+        "Monthly shoot day content: war room internal discussions + external expert guest interviews. Guest selection rotates across tier-relevant topics — founder stories, growth marketing, enterprise brand management, investor perspectives (Multipliers).",
       ],
       formats: [
         "LinkedIn posts (thought leadership, 3x/week, Reagan + Lucy personal brands)",
@@ -1798,17 +1849,21 @@ export const brandData = {
       "Your brand should be as smart as your product",
       "Empowerment over dependency",
       "AI-empowered, not AI-led",
-      "Powered by 46Capital",
+      "Membership, not retainer",
+      "Context compounds",
+      "Brand intelligence, not brand assets",
       "Not an agency. Not a freelancer. Not a tool. An operating system.",
       "Brand Discovery is the entry point. Brand HQ is the system.",
       "The system gets smarter every month.",
+      "Powered by 46Capital",
     ],
 
     messagingHierarchy: [
-      "We are a creative operating system — a living intelligence layer, not a service. This is the primary frame for all positioning.",
+      "We are a membership-based creative operating system — a living intelligence layer, not a service. This is the primary frame for all positioning.",
+      "We serve five tiers — from Day-One Startups to Flagship enterprises — each with a tailored entry point. The umbrella positioning stays the same; the dials turn per tier.",
       "Context is the moat — the more Brand HQ knows, the harder it is to replace. This is the core value proposition.",
       "Brand Discovery is the entry point that makes the rest inevitable — standalone premium, not a free consultation.",
-      "We empower teams to be their own brand managers — capability, not dependency.",
+      "We empower teams to be their own brand managers — capability, not dependency. Membership, not retainer.",
       "We are AI-empowered, not AI-led — senior creative judgment first, AI accelerates execution.",
       "We bring investor perspective — backed by 46Capital, we know what the other side of the table looks for.",
     ],
@@ -1823,7 +1878,7 @@ export const brandData = {
 
     audiencePerception: {
       firstImpression:
-        "A prospect landing on start-suite.com sees a dark, modern, confident brand that immediately signals 'this is not your typical agency.' The messaging frames StartSuite as a creative operating system — a living intelligence layer, not a service provider. The primary question in the prospect's mind: 'What does Brand Discovery produce, and can this system actually make my brand smarter?'",
+        "A prospect landing on start-suite.com sees a dark, modern, confident brand that immediately signals 'this is not your typical agency.' Different tiers react differently: Day-One founders ask 'Can I afford this?' while Operators and Flagships ask 'Can this handle our complexity?' The messaging frames StartSuite as a membership-based creative operating system — a living intelligence layer, not a service provider. The primary question across all tiers: 'What does Brand Discovery produce, and how does the membership model compound value over time?'",
       keyQuestions: [
         "What is a creative operating system and how is it different from an agency?",
         "What does Brand Discovery actually produce? What do I get?",
@@ -1831,6 +1886,9 @@ export const brandData = {
         "How does Brand HQ compound context over time?",
         "How does the AI component work — is this replacing human judgment or enhancing it?",
         "Who are the people behind this and can I trust them with my brand?",
+        "Is this only for startups? (common question from Established Businesses and Enterprises)",
+        "Can you handle our complexity? (common question from Growth Companies and Large Orgs)",
+        "How is this different from hiring in-house? (common question from Operators and Flagships)",
       ],
     },
 
@@ -1845,7 +1903,7 @@ export const brandData = {
     },
 
     competitivePositioningStatement:
-      "For founders and growing companies at an inflection point, StartSuite is the creative operating system that starts with Brand Discovery, compounds intelligence through Brand HQ, and empowers teams to be their own brand managers — unlike agencies that are too slow, freelancers that are too fragmented, AI platforms that have no context, and consultants that have no execution.",
+      "For founders, marketing leaders, and growing companies who need a creative operating system that compounds — StartSuite is the membership-based brand intelligence platform that delivers Brand Discovery, ongoing competitive monitoring, and AI-accelerated creative execution — unlike agencies that sell projects, freelancers that sell hours, and AI tools that sell templates.",
   },
 
   // ── AUDIENCE (EXPANDED) ──────────────────────────────────────────────────────
@@ -1896,7 +1954,7 @@ export const brandData = {
   // ── GO-TO-MARKET ─────────────────────────────────────────────────────────────
   gtm: {
     keyTakeaway:
-      "StartSuite's go-to-market is product-led and relationship-driven. Brand Discovery is the entry point that makes the rest inevitable. The pipeline flows: Brand Discovery, Foundations, Add-ons, Dream Client. Content-led growth via Reagan + Lucy personal brands on LinkedIn, YouTube as long-form authority, and 46Capital portfolio as warm pipeline.",
+      "StartSuite's go-to-market is product-led and relationship-driven, structured around a 5-tier audience model: Startups (Day-Ones), Growth Companies (Scalers), Established Businesses (Operators), Large Orgs/Enterprise (Flagships), and Investors & Accelerators (Multipliers). Brand Discovery is the entry point that makes the rest inevitable. The pipeline flows: Brand Discovery, Foundations membership, Add-ons, Dream Client. Tier rollout starts with Startups and Growth, then expands to Established, Enterprise, and Multipliers.",
 
     currentStage: "Pivot execution — defining Brand Discovery pricing, launching content cadence, targeting first accelerator partnership",
     primaryGrowthMotion: "Brand Discovery as entry point → Foundations subscription → Add-on expansion → Dream Client for select fits",
@@ -1905,27 +1963,27 @@ export const brandData = {
     pillars: [
       {
         title: "Brand Discovery as the Gateway",
-        description: "Every client engagement starts with Brand Discovery. It is both a standalone premium product and a pipeline generator for Foundations subscriptions. The output — a living Brand HQ — demonstrates the value of the creative operating system before the client commits to monthly.",
+        description: "Every client engagement starts with Brand Discovery — tailored by tier. Startups (Day-Ones) get speed-focused delivery; Growth Companies (Scalers) get competitive positioning depth; Established Businesses (Operators) get brand system audits. The output — a living Brand HQ — demonstrates the value of the membership-based creative operating system before the client commits to monthly.",
       },
       {
         title: "46Capital Portfolio Pipeline",
-        description: "Every 46Capital portfolio company is a warm StartSuite prospect. The investor relationship provides credibility and deal flow that no cold outreach can replicate. This remains the primary warm acquisition channel.",
+        description: "Every 46Capital portfolio company is a warm StartSuite prospect, primarily serving the Startup and Growth tiers. The investor relationship provides credibility and deal flow that no cold outreach can replicate. The Multipliers tier (Investors & Accelerators) amplifies this by referring their own portfolios.",
       },
       {
         title: "Content-Led Authority (Reagan + Lucy Personal Brands)",
-        description: "Reagan and Lucy building authority on LinkedIn with expert-level brand strategy content (3x/week each). YouTube for long-form educational content and monthly shoot day material. Every piece passes the expert insight standard.",
+        description: "Reagan and Lucy building authority on LinkedIn with expert-level brand strategy content (3x/week each). Content is crafted to resonate across all five tiers — tactical tips for Startups, competitive intelligence for Growth, and systems thinking for Operators and Flagships. YouTube for long-form educational content and monthly shoot day material.",
       },
       {
         title: "YouTube as Long-Form Authority Channel",
-        description: "Monthly shoot day content (war room internal + expert guest interviews) distributed on YouTube as long-form educational content. Builds depth of authority that LinkedIn posts cannot achieve alone.",
+        description: "Monthly shoot day content (war room internal + expert guest interviews) distributed on YouTube as long-form educational content. Primarily serves Growth Companies and Established Businesses who consume in-depth strategy content. Builds depth of authority that LinkedIn posts cannot achieve alone.",
       },
       {
         title: "Accelerator Partnerships",
-        description: "Partnering with accelerators to embed StartSuite as the creative operating system for cohort companies. One partnership unlocks 10-20 pre-qualified companies per year. First partnership is a critical near-term action item.",
+        description: "Partnering with accelerators to embed StartSuite as the creative operating system for cohort companies. Serves both the Startup tier (cohort members) and the Multipliers tier (accelerator operators themselves). One partnership unlocks 10-20 pre-qualified companies per year.",
       },
       {
         title: "Referral Flywheel",
-        description: "Satisfied clients refer other companies. The referral program needs formalization — a simple mechanism, a clear incentive, and a tracking system. The goal is 1-2 referrals per active client per year.",
+        description: "Satisfied clients across all tiers refer other companies. Growth Companies and Established Businesses generate the highest-quality referrals. The referral program needs formalization — a simple mechanism, a clear incentive, and a tracking system. The goal is 1-2 referrals per active client per year.",
       },
     ],
 
@@ -1950,22 +2008,22 @@ export const brandData = {
     ],
 
     channels: [
-      { channel: "Brand Discovery (direct sales)", investment: "Sales conversations, proposals", status: "Phase 1 — Active" },
-      { channel: "46Capital Portfolio Referrals", investment: "Relationship maintenance", status: "Phase 1 — Active" },
-      { channel: "LinkedIn Content (Reagan + Lucy)", investment: "3x/week each + monthly shoot day", status: "Phase 1 — Launching" },
-      { channel: "YouTube Content", investment: "2-4x/month from shoot day material", status: "Phase 1 — Launching" },
-      { channel: "Accelerator Partnerships", investment: "Partnership development", status: "Phase 1 — Targeting first" },
-      { channel: "Referral Program", investment: "Formalization needed", status: "Phase 1 — Planning" },
-      { channel: "LinkedIn Ads", investment: "$1-3K/month", status: "Phase 2" },
-      { channel: "Google Search Ads", investment: "$500-1K/month", status: "Phase 2" },
+      { channel: "Brand Discovery (direct sales)", investment: "Sales conversations, proposals", status: "Phase 1 — Active", tier: "All Tiers" },
+      { channel: "46Capital Portfolio Referrals", investment: "Relationship maintenance", status: "Phase 1 — Active", tier: "Startups, Growth" },
+      { channel: "LinkedIn Content (Reagan + Lucy)", investment: "3x/week each + monthly shoot day", status: "Phase 1 — Launching", tier: "All Tiers" },
+      { channel: "YouTube Content", investment: "2-4x/month from shoot day material", status: "Phase 1 — Launching", tier: "Growth, Established" },
+      { channel: "Accelerator Partnerships", investment: "Partnership development", status: "Phase 1 — Targeting first", tier: "Startups, Multipliers" },
+      { channel: "Referral Program", investment: "Formalization needed", status: "Phase 1 — Planning", tier: "Growth, Established" },
+      { channel: "LinkedIn Ads", investment: "$1-3K/month", status: "Phase 2", tier: "Growth, Established, Enterprise" },
+      { channel: "Google Search Ads", investment: "$500-1K/month", status: "Phase 2", tier: "Startups, Growth" },
     ],
 
     launchTimeline: [
-      { phase: "Foundation (Complete)", timing: "Q4 2025", deliverables: "Brand identity, website, first 10 clients, 46Capital relationship established" },
-      { phase: "Pivot Execution", timing: "Q1 2026", deliverables: "Creative operating system positioning, Brand Discovery productized, Foundations at $3K/month defined, board meeting alignment" },
-      { phase: "Market Launch", timing: "Q2 2026", deliverables: "Brand Discovery pricing finalized, first 3 case studies published, LinkedIn cadence at 3x/week, first accelerator partnership, first hire (creative generalist)" },
-      { phase: "Scale Foundations", timing: "Q3-Q4 2026", deliverables: "10+ Foundations subscribers, YouTube channel active, 2+ accelerator partnerships, token/credit model for add-ons, second hire consideration" },
-      { phase: "Expand", timing: "2027", deliverables: "National accelerator partnerships, 25+ active subscribers, team of 4-5, Dream Client model proven with 2-3 full-service engagements" },
+      { phase: "Foundation (Complete)", timing: "Q4 2025", deliverables: "Brand identity, website, first 10 clients, 46Capital relationship established. Primary tier: Startups (Day-Ones)." },
+      { phase: "Pivot Execution", timing: "Q1 2026", deliverables: "Creative operating system positioning, Brand Discovery productized, Foundations membership at $3K/month defined, board meeting alignment. Tier focus: Startups + Growth Companies (Scalers)." },
+      { phase: "Market Launch", timing: "Q2 2026", deliverables: "Brand Discovery pricing finalized, first 3 case studies published, LinkedIn cadence at 3x/week, first accelerator partnership, first hire (creative generalist). Tier expansion: add Established Businesses (Operators)." },
+      { phase: "Scale Foundations", timing: "Q3-Q4 2026", deliverables: "10+ Foundations members, YouTube channel active, 2+ accelerator partnerships, token/credit model for add-ons, second hire consideration. Tier expansion: add Large Orgs/Enterprise (Flagships) and Investors & Accelerators (Multipliers)." },
+      { phase: "Expand", timing: "2027", deliverables: "National accelerator partnerships, 25+ active members across all 5 tiers, team of 4-5, Dream Client model proven with 2-3 full-service Flagship engagements." },
     ],
 
     draftedResources: [
