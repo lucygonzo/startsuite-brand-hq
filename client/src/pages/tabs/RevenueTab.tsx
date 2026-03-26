@@ -133,9 +133,25 @@ export default function RevenueTab() {
         </div>
       </SectionCard>
 
-      {/* Revenue Mix */}
+      {/* Revenue Mix Summary */}
       <SectionCard>
         <SectionHeader icon={<TrendingUp size={16} />} title="Revenue Mix" subtitle="Current vs. target allocation across streams" />
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {revenueStreams.map((stream, i) => {
+            const delta = stream.targetMix - stream.currentMix;
+            return (
+              <div key={i} className="p-3 rounded-lg bg-muted/50 border border-border text-center">
+                <p className="text-xs text-muted-foreground mb-1">{stream.name}</p>
+                <p className="font-display text-lg font-bold text-foreground">{stream.currentMix}%</p>
+                <p className={`text-xs font-medium ${delta > 0 ? "text-green-600" : delta < 0 ? "text-red-500" : "text-muted-foreground"}`}>
+                  {delta > 0 ? "↑" : delta < 0 ? "↓" : "→"} Target: {stream.targetMix}%
+                </p>
+              </div>
+            );
+          })}
+
+        </div>
 
         <div className="space-y-5">
           {revenueStreams.map((stream, i) => {
