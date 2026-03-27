@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { SectionCard, KeyTakeaway, SectionHeader, SubTabNav } from "@/components/BrandUI";
 import {
   AlertTriangle, CheckCircle2, BarChart3, Zap, ChevronDown, ChevronUp,
   Shield, Users, DollarSign, Calendar, Target, Swords,
-  ArrowRight, Handshake,
+  ArrowRight, Handshake, ExternalLink,
 } from "lucide-react";
 import { brandData } from "@/data/brandData";
 
-/* ── Classification palette (replaces threat-level for display) ───────────── */
+/* ── Classification palette ───────────────────────────────────────────────── */
 
 const CLASSIFICATION_COLORS: Record<string, { bg: string; text: string; border: string; dot: string }> = {
   "High Threat": { bg: "bg-red-100",   text: "text-red-700",   border: "border-red-200",   dot: "bg-red-500" },
@@ -18,66 +18,10 @@ const CLASSIFICATION_COLORS: Record<string, { bg: string; text: string; border: 
   Adjacent:      { bg: "bg-blue-100",  text: "text-blue-700",  border: "border-blue-200",  dot: "bg-blue-500" },
 };
 
-/* ── Legacy threat-level palette (kept for head-to-head table) ───────────── */
-
-const THREAT_COLORS: Record<string, { bg: string; text: string; border: string; dot: string }> = {
-  High:     { bg: "bg-red-100",   text: "text-red-700",   border: "border-red-200",   dot: "bg-red-500" },
-  Medium:   { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", dot: "bg-amber-500" },
-  Low:      { bg: "bg-green-100", text: "text-green-700", border: "border-green-200", dot: "bg-green-500" },
-  Adjacent: { bg: "bg-blue-100",  text: "text-blue-700",  border: "border-blue-200",  dot: "bg-blue-500" },
-  None:     { bg: "bg-gray-100",  text: "text-gray-500",  border: "border-gray-200",  dot: "bg-gray-400" },
-};
-
 const STRENGTH_COLORS: Record<string, { bg: string; text: string; bar: string }> = {
   Strong:   { bg: "bg-green-50", text: "text-green-700", bar: "bg-green-500" },
   Moderate: { bg: "bg-amber-50", text: "text-amber-700", bar: "bg-amber-500" },
   Emerging: { bg: "bg-blue-50",  text: "text-blue-700",  bar: "bg-blue-500" },
-};
-
-/* ── Head-to-head capability map ──────────────────────────────────────────── */
-
-type Cap = "full" | "partial" | "basic" | "ai" | false;
-
-const CAPABILITY_MAP: Record<string, { strategy: Cap; design: Cap; content: Cap; intel: Cap; compounds: Cap }> = {
-  "Superside":           { strategy: false,  design: "full",    content: "partial", intel: false, compounds: false },
-  "DesignJoy":           { strategy: false,  design: "full",    content: false,     intel: false, compounds: false },
-  "Pentagram":           { strategy: "full", design: "full",    content: false,     intel: false, compounds: false },
-  "Canva Teams / AI":    { strategy: false,  design: "full",    content: false,     intel: false, compounds: false },
-  "Jasper":              { strategy: false,  design: false,     content: "full",    intel: false, compounds: false },
-  "Looka / Brandmark":   { strategy: false,  design: "basic",   content: false,     intel: false, compounds: false },
-  "Pilot (YC-backed)":   { strategy: false,  design: false,     content: false,     intel: false, compounds: false },
-  "Moda":                { strategy: false,  design: "ai",      content: false,     intel: false, compounds: false },
-};
-
-function CapIcon({ value }: { value: Cap }) {
-  if (value === "full")    return <CheckCircle2 size={14} className="text-green-600 mx-auto" />;
-  if (value === "partial") return <span className="text-amber-500 text-xs font-mono mx-auto block text-center">~</span>;
-  if (value === "basic")   return <span className="text-green-500/60 text-xs font-mono mx-auto block text-center">*</span>;
-  if (value === "ai")      return <span className="text-blue-500 text-xs font-mono mx-auto block text-center">AI</span>;
-  return <span className="text-muted-foreground/30 block text-center">&mdash;</span>;
-}
-
-/* ── Landscape tiers (for "Where We Fit" summary) ─────────────────────────── */
-
-type ClassificationLevel = "HIGH_THREAT" | "WATCH" | "OPPORTUNITY" | "ADJACENT";
-
-interface LandscapeEntry { name: string; level: ClassificationLevel; note?: string }
-
-const LANDSCAPE_TIERS: LandscapeEntry[] = [
-  { name: "Canva Teams / AI", level: "HIGH_THREAT" },
-  { name: "Superside",        level: "WATCH" },
-  { name: "DesignJoy",        level: "WATCH" },
-  { name: "Jasper",           level: "WATCH" },
-  { name: "Pilot (YC-backed)",level: "OPPORTUNITY", note: "Same model, potential partner" },
-  { name: "Pentagram",        level: "ADJACENT" },
-  { name: "Looka / Brandmark",level: "ADJACENT" },
-];
-
-const LANDSCAPE_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  HIGH_THREAT:  { bg: "bg-red-100",   text: "text-red-700",   label: "High Threat" },
-  WATCH:        { bg: "bg-amber-100", text: "text-amber-700", label: "Watch" },
-  OPPORTUNITY:  { bg: "bg-green-100", text: "text-green-700", label: "Opportunity" },
-  ADJACENT:     { bg: "bg-blue-100",  text: "text-blue-700",  label: "Adjacent" },
 };
 
 /* ── Priority + owner for recommendations ─────────────────────────────────── */
@@ -96,16 +40,20 @@ const PRIORITY_STYLE: Record<string, { bg: string; text: string }> = {
   Medium: { bg: "bg-blue-100",  text: "text-blue-700" },
 };
 
-/* ── Classification filter + sort helpers ─────────────────────────────────── */
+/* ── Classification sort order ────────────────────────────────────────────── */
 
 const CLASSIFICATION_ORDER: Record<string, number> = { "High Threat": 0, Watch: 1, Opportunity: 2, Adjacent: 3 };
 
 const ALL_CLASSIFICATIONS = ["High Threat", "Watch", "Opportunity", "Adjacent"] as const;
 
+/* ── Category display order ───────────────────────────────────────────────── */
+
+const CATEGORY_ORDER = ["Direct", "Adjacent", "Same Industry", "Our People", "Similar Model", "Inspiration"] as const;
+
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function CompetitiveTab() {
-  const [sub, setSub] = useState("where-we-fit");
+  const [sub, setSub] = useState("landscape");
   const [expandedCompetitors, setExpandedCompetitors] = useState<Set<number>>(new Set());
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [classificationFilter, setClassificationFilter] = useState<string>("All");
@@ -120,18 +68,75 @@ export default function CompetitiveTab() {
     });
   };
 
-  /* Derive which category pills to show (only categories with competitors) */
-  const activeCategories = Array.from(
-    new Set(comp.namedCompetitors.map((nc) => nc.competitorCategory))
+  /* Derive active categories from the data */
+  const activeCategories = useMemo(
+    () => CATEGORY_ORDER.filter((cat) => comp.namedCompetitors.some((nc) => nc.competitorCategory === cat)),
+    [comp.namedCompetitors],
   );
 
-  /* Sort by classification, then filter by both category + classification */
-  const sortedCompetitors = [...comp.namedCompetitors]
-    .sort((a, b) => (CLASSIFICATION_ORDER[a.classification] ?? 9) - (CLASSIFICATION_ORDER[b.classification] ?? 9));
+  /* Sort all competitors by classification priority */
+  const sortedCompetitors = useMemo(
+    () => [...comp.namedCompetitors].sort((a, b) => (CLASSIFICATION_ORDER[a.classification] ?? 9) - (CLASSIFICATION_ORDER[b.classification] ?? 9)),
+    [comp.namedCompetitors],
+  );
 
-  const filteredCompetitors = sortedCompetitors
-    .filter((nc) => categoryFilter === "All" || nc.competitorCategory === categoryFilter)
-    .filter((nc) => classificationFilter === "All" || nc.classification === classificationFilter);
+  /* Filter by both category + classification */
+  const filteredCompetitors = useMemo(
+    () =>
+      sortedCompetitors
+        .filter((nc) => categoryFilter === "All" || nc.competitorCategory === categoryFilter)
+        .filter((nc) => classificationFilter === "All" || nc.classification === classificationFilter),
+    [sortedCompetitors, categoryFilter, classificationFilter],
+  );
+
+  /* Group competitors by classification (for landscape grid) */
+  const competitorsByClassification = useMemo(() => {
+    const groups: Record<string, typeof comp.namedCompetitors> = {};
+    for (const cls of ALL_CLASSIFICATIONS) {
+      groups[cls] = comp.namedCompetitors.filter((nc) => nc.classification === cls);
+    }
+    return groups;
+  }, [comp.namedCompetitors]);
+
+  /* Summary stat counts */
+  const classificationCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const cls of ALL_CLASSIFICATIONS) {
+      counts[cls] = competitorsByClassification[cls]?.length ?? 0;
+    }
+    return counts;
+  }, [competitorsByClassification]);
+
+  /* Head-to-head: Direct + Adjacent only */
+  const headToHeadCompetitors = useMemo(
+    () =>
+      [...comp.namedCompetitors]
+        .filter((nc) => nc.competitorCategory === "Direct" || nc.competitorCategory === "Adjacent")
+        .sort((a, b) => (CLASSIFICATION_ORDER[a.classification] ?? 9) - (CLASSIFICATION_ORDER[b.classification] ?? 9)),
+    [comp.namedCompetitors],
+  );
+
+  /* Navigate to All Competitors tab and expand a specific competitor */
+  const goToCompetitor = (name: string) => {
+    const idx = comp.namedCompetitors.findIndex((nc) => nc.name === name);
+    if (idx !== -1) {
+      setExpandedCompetitors(new Set([idx]));
+      setCategoryFilter("All");
+      setClassificationFilter("All");
+      setSub("all-competitors");
+    }
+  };
+
+  /* Determine if a competitor has Strategy/Design/Compounds capabilities (heuristic from data) */
+  const hasStrategy = (nc: (typeof comp.namedCompetitors)[number]) => {
+    const cats = ["Traditional Design Agency", "Premium UX & Brand Agency", "Design & Innovation Consultancy", "Fractional Marketing Leadership"];
+    return cats.some((c) => nc.category.includes(c.split(" ")[0]));
+  };
+  const hasDesign = (nc: (typeof comp.namedCompetitors)[number]) => {
+    const keywords = ["Design", "Creative", "Brand", "UX", "Logo", "Presentation", "Website"];
+    return keywords.some((k) => nc.category.includes(k));
+  };
+  const hasCompounds = (_nc: (typeof comp.namedCompetitors)[number]) => false; // No competitor compounds
 
   return (
     <div className="space-y-6 tab-content-enter">
@@ -139,19 +144,20 @@ export default function CompetitiveTab() {
 
       <SubTabNav
         tabs={[
-          { id: "where-we-fit",  label: "Where We Fit" },
-          { id: "competitors",   label: "Competitors" },
-          { id: "moat",          label: "Our Moat" },
-          { id: "actions",       label: "Strategic Actions" },
+          { id: "landscape",        label: "Landscape" },
+          { id: "all-competitors",  label: "All Competitors" },
+          { id: "head-to-head",     label: "Head-to-Head" },
+          { id: "moat",             label: "Our Moat" },
+          { id: "actions",          label: "Strategic Actions" },
         ]}
         active={sub}
         onChange={setSub}
       />
 
       {/* ══════════════════════════════════════════════════════════════════════
-           TAB 1 — WHERE WE FIT
+           TAB 1 — LANDSCAPE
          ══════════════════════════════════════════════════════════════════════ */}
-      {sub === "where-we-fit" && (
+      {sub === "landscape" && (
         <div className="space-y-6">
 
           {/* A — White Space Statement */}
@@ -213,7 +219,54 @@ export default function CompetitiveTab() {
             <p className="text-xs text-muted-foreground text-center mt-4">No competitor combines startup speed, senior strategic depth, investor perspective, and compounding brand intelligence.</p>
           </SectionCard>
 
-          {/* C — Market Categories (compact table) */}
+          {/* C — Summary Stats Bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {ALL_CLASSIFICATIONS.map((cls) => {
+              const colors = CLASSIFICATION_COLORS[cls];
+              return (
+                <div key={cls} className={`rounded-xl border p-4 text-center ${colors.bg} ${colors.border}`}>
+                  <p className={`text-2xl font-bold ${colors.text}`}>{classificationCounts[cls]}</p>
+                  <p className={`font-mono text-[10px] font-semibold uppercase tracking-widest ${colors.text} mt-1`}>{cls}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* D — Landscape Grid (ALL 50 competitors grouped by classification) */}
+          <SectionCard>
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-4">All {comp.namedCompetitors.length} Competitors by Classification</p>
+            <div className="space-y-4">
+              {ALL_CLASSIFICATIONS.map((cls) => {
+                const entries = competitorsByClassification[cls];
+                if (!entries || entries.length === 0) return null;
+                const colors = CLASSIFICATION_COLORS[cls];
+                return (
+                  <div key={cls}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className={`w-2 h-2 rounded-full ${colors.dot}`} />
+                      <p className={`font-mono text-[10px] font-semibold uppercase tracking-widest ${colors.text}`}>
+                        {cls} ({entries.length})
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {entries.map((nc, j) => (
+                        <button
+                          key={j}
+                          onClick={() => goToCompetitor(nc.name)}
+                          className={`text-xs px-2.5 py-1 rounded-full border transition-all hover:scale-105 hover:shadow-sm cursor-pointer ${colors.bg} ${colors.text} ${colors.border}`}
+                        >
+                          {nc.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground mt-4">Click any name to view full details in the All Competitors tab.</p>
+          </SectionCard>
+
+          {/* E — Market Categories (compact table) */}
           <SectionCard>
             <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-4">Market Categories</p>
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
@@ -239,46 +292,20 @@ export default function CompetitiveTab() {
               </table>
             </div>
           </SectionCard>
-
-          {/* D — Landscape at a Glance */}
-          <SectionCard>
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-4">Landscape at a Glance</p>
-            <div className="space-y-3">
-              {(["HIGH_THREAT", "WATCH", "OPPORTUNITY", "ADJACENT"] as const).map((level) => {
-                const entries = LANDSCAPE_TIERS.filter((t) => t.level === level);
-                if (entries.length === 0) return null;
-                const style = LANDSCAPE_STYLE[level];
-                return (
-                  <div key={level} className="flex items-start gap-3">
-                    <Badge className={`text-xs shrink-0 w-24 justify-center ${style.bg} ${style.text} border border-current/10`}>
-                      {style.label}
-                    </Badge>
-                    <div className="flex flex-wrap gap-1.5">
-                      {entries.map((e, j) => (
-                        <span key={j} className={`text-xs px-2 py-0.5 rounded-md border ${style.bg} ${style.text}`}>
-                          {e.name}{e.note ? ` (${e.note})` : ""}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </SectionCard>
         </div>
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-           TAB 2 — COMPETITORS
+           TAB 2 — ALL COMPETITORS
          ══════════════════════════════════════════════════════════════════════ */}
-      {sub === "competitors" && (
+      {sub === "all-competitors" && (
         <div className="space-y-6">
 
           {/* Row 1 — Category filters */}
           <div>
             <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Category</p>
             <div className="flex flex-wrap gap-2">
-              {["All", ...activeCategories].map((cat) => (
+              {(["All", ...activeCategories] as string[]).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
@@ -298,7 +325,7 @@ export default function CompetitiveTab() {
           <div>
             <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Classification</p>
             <div className="flex flex-wrap gap-2">
-              {["All", ...ALL_CLASSIFICATIONS].map((cls) => {
+              {(["All", ...ALL_CLASSIFICATIONS] as string[]).map((cls) => {
                 const clsColor = CLASSIFICATION_COLORS[cls];
                 return (
                   <button
@@ -317,18 +344,16 @@ export default function CompetitiveTab() {
             </div>
           </div>
 
-          {/* Active filter summary */}
-          {(categoryFilter !== "All" || classificationFilter !== "All") && (
-            <p className="text-xs text-muted-foreground">
-              Showing {filteredCompetitors.length} of {comp.namedCompetitors.length} competitors
-              {categoryFilter !== "All" && <> in <span className="font-medium text-foreground">{categoryFilter}</span></>}
-              {classificationFilter !== "All" && <> classified as <span className="font-medium text-foreground">{classificationFilter}</span></>}
-            </p>
-          )}
+          {/* Count indicator */}
+          <p className="text-xs text-muted-foreground">
+            Showing <span className="font-semibold text-foreground">{filteredCompetitors.length}</span> of {comp.namedCompetitors.length}
+            {categoryFilter !== "All" && <> in <span className="font-medium text-foreground">{categoryFilter}</span></>}
+            {classificationFilter !== "All" && <> classified as <span className="font-medium text-foreground">{classificationFilter}</span></>}
+          </p>
 
           {/* Competitor cards */}
           <div className="space-y-3">
-            {filteredCompetitors.map((nc, _fi) => {
+            {filteredCompetitors.map((nc) => {
               const origIndex = comp.namedCompetitors.indexOf(nc);
               const isExpanded = expandedCompetitors.has(origIndex);
               const clsColor = CLASSIFICATION_COLORS[nc.classification] || CLASSIFICATION_COLORS.Watch;
@@ -345,7 +370,6 @@ export default function CompetitiveTab() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-display text-base font-semibold text-foreground">{nc.name}</h3>
                           <span className="font-mono text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded">{nc.competitorCategory}</span>
-                          <p className="text-xs italic text-muted-foreground">&ldquo;{nc.tagline}&rdquo;</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
@@ -360,14 +384,6 @@ export default function CompetitiveTab() {
 
                   {isExpanded && (
                     <div className="mt-4 pt-4 border-t border-border space-y-4">
-                      {/* Why they matter */}
-                      <div className={`p-3 rounded-xl border ${isOpportunity ? "bg-green-50 border-green-200" : "bg-muted/30 border-border"}`}>
-                        <p className={`font-mono text-[10px] font-semibold uppercase tracking-widest mb-1 ${isOpportunity ? "text-green-700" : "text-muted-foreground"}`}>
-                          Why They Matter
-                        </p>
-                        <p className="text-xs text-foreground leading-relaxed">{nc.startSuiteAdvantage.split(".")[0]}.</p>
-                      </div>
-
                       {/* 3-column top grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="space-y-2">
@@ -385,9 +401,11 @@ export default function CompetitiveTab() {
                           <div>
                             <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Notable Clients</p>
                             <div className="flex flex-wrap gap-1 mt-0.5">
-                              {nc.notableClients.map((client, j) => (
-                                <Badge key={j} variant="outline" className="text-[10px]">{client}</Badge>
-                              ))}
+                              {nc.notableClients.length > 0
+                                ? nc.notableClients.map((client, j) => (
+                                    <Badge key={j} variant="outline" className="text-[10px]">{client}</Badge>
+                                  ))
+                                : <span className="text-xs text-muted-foreground italic">Not disclosed</span>}
                             </div>
                           </div>
                         </div>
@@ -446,48 +464,74 @@ export default function CompetitiveTab() {
               );
             })}
           </div>
+        </div>
+      )}
 
-          {/* Head-to-Head Comparison Table */}
+      {/* ══════════════════════════════════════════════════════════════════════
+           TAB 3 — HEAD-TO-HEAD
+         ══════════════════════════════════════════════════════════════════════ */}
+      {sub === "head-to-head" && (
+        <div className="space-y-6">
+          <SectionHeader icon={<Swords size={16} />} title="Head-to-Head Comparison" subtitle="Direct + Adjacent competitors only — the ones that actually compete" />
+          <p className="text-xs text-muted-foreground">
+            Showing <span className="font-semibold text-foreground">{headToHeadCompetitors.length}</span> competitors in Direct and Adjacent categories.
+          </p>
+
           <SectionCard>
-            <SectionHeader icon={<Swords size={16} />} title="Head-to-Head Comparison" subtitle="Capability coverage across key dimensions" />
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-              <table className="w-full text-xs border-collapse min-w-[640px]">
+              <table className="w-full text-xs border-collapse min-w-[800px]">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-2 pr-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Competitor</th>
-                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Strategy</th>
-                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Design</th>
-                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Content</th>
-                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Intel</th>
-                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Compounds</th>
-                    <th className="text-left py-2 pl-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Classification</th>
+                    <th className="text-left py-2 pr-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Company</th>
+                    <th className="text-left py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Category</th>
+                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Classification</th>
+                    <th className="text-left py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Pricing</th>
+                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Strategy?</th>
+                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Design?</th>
+                    <th className="text-center py-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Compounds?</th>
+                    <th className="text-center py-2 pl-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">GDrive</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {/* StartSuite row */}
+                  {/* StartSuite highlighted row */}
                   <tr className="bg-purple-50 border-b-2 border-purple-200 font-medium">
                     <td className="py-2.5 pr-3"><span className="font-display font-semibold text-purple-700">StartSuite</span></td>
+                    <td className="py-2.5 px-3 text-purple-700">Creative Operating System</td>
+                    <td className="py-2.5 px-3 text-center"><Badge className="text-xs bg-purple-100 text-purple-700 border border-purple-200">Us</Badge></td>
+                    <td className="py-2.5 px-3 text-purple-700">Membership tiers</td>
                     <td className="py-2.5 px-3 text-center"><CheckCircle2 size={14} className="text-green-600 mx-auto" /></td>
                     <td className="py-2.5 px-3 text-center"><CheckCircle2 size={14} className="text-green-600 mx-auto" /></td>
                     <td className="py-2.5 px-3 text-center"><CheckCircle2 size={14} className="text-green-600 mx-auto" /></td>
-                    <td className="py-2.5 px-3 text-center"><CheckCircle2 size={14} className="text-green-600 mx-auto" /></td>
-                    <td className="py-2.5 px-3 text-center"><CheckCircle2 size={14} className="text-green-600 mx-auto" /></td>
-                    <td className="py-2.5 pl-3"><Badge className="text-xs bg-purple-100 text-purple-700 border border-purple-200">Us</Badge></td>
+                    <td className="py-2.5 pl-3 text-center"><span className="text-muted-foreground/30">&mdash;</span></td>
                   </tr>
                   {/* Competitor rows */}
-                  {sortedCompetitors.map((nc, i) => {
-                    const caps = CAPABILITY_MAP[nc.name] || { strategy: false, design: false, content: false, intel: false, compounds: false };
+                  {headToHeadCompetitors.map((nc, i) => {
                     const clsColor = CLASSIFICATION_COLORS[nc.classification] || CLASSIFICATION_COLORS.Watch;
                     return (
                       <tr key={i} className="border-b border-border hover:bg-muted/30 transition-colors">
                         <td className="py-2.5 pr-3 font-medium text-foreground">{nc.name}</td>
-                        <td className="py-2.5 px-3"><CapIcon value={caps.strategy} /></td>
-                        <td className="py-2.5 px-3"><CapIcon value={caps.design} /></td>
-                        <td className="py-2.5 px-3"><CapIcon value={caps.content} /></td>
-                        <td className="py-2.5 px-3"><CapIcon value={caps.intel} /></td>
-                        <td className="py-2.5 px-3"><CapIcon value={caps.compounds} /></td>
-                        <td className="py-2.5 pl-3">
+                        <td className="py-2.5 px-3 text-muted-foreground truncate max-w-[160px]">{nc.competitorCategory}</td>
+                        <td className="py-2.5 px-3 text-center">
                           <Badge className={`text-xs ${clsColor.bg} ${clsColor.text} ${clsColor.border} border`}>{nc.classification}</Badge>
+                        </td>
+                        <td className="py-2.5 px-3 text-muted-foreground truncate max-w-[160px]">{nc.pricing}</td>
+                        <td className="py-2.5 px-3 text-center">
+                          {hasStrategy(nc) ? <CheckCircle2 size={14} className="text-green-600 mx-auto" /> : <span className="text-muted-foreground/30 block text-center">&mdash;</span>}
+                        </td>
+                        <td className="py-2.5 px-3 text-center">
+                          {hasDesign(nc) ? <CheckCircle2 size={14} className="text-green-600 mx-auto" /> : <span className="text-muted-foreground/30 block text-center">&mdash;</span>}
+                        </td>
+                        <td className="py-2.5 px-3 text-center">
+                          {hasCompounds(nc) ? <CheckCircle2 size={14} className="text-green-600 mx-auto" /> : <span className="text-muted-foreground/30 block text-center">&mdash;</span>}
+                        </td>
+                        <td className="py-2.5 pl-3 text-center">
+                          {nc.driveUrl ? (
+                            <a href={nc.driveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center text-purple-600 hover:text-purple-800 transition-colors">
+                              <ExternalLink size={13} />
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground/30">&mdash;</span>
+                          )}
                         </td>
                       </tr>
                     );
@@ -497,19 +541,16 @@ export default function CompetitiveTab() {
             </div>
             <p className="text-xs text-muted-foreground mt-3">
               <span className="font-mono text-[10px]">KEY</span>&ensp;
-              <CheckCircle2 size={10} className="inline text-green-600" /> Full&ensp;
-              <span className="text-amber-500 font-mono">~</span> Partial&ensp;
-              <span className="text-green-500/60 font-mono">*</span> Basic&ensp;
-              <span className="text-blue-500 font-mono">AI</span> AI-only&ensp;
-              &mdash; None.
-              &ensp;No competitor has Intel or Compounds &mdash; that is the moat.
+              <CheckCircle2 size={10} className="inline text-green-600" /> Has capability&ensp;
+              &mdash; Does not.
+              &ensp;No competitor has Compounds &mdash; that is the moat.
             </p>
           </SectionCard>
         </div>
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-           TAB 3 — OUR MOAT
+           TAB 4 — OUR MOAT
          ══════════════════════════════════════════════════════════════════════ */}
       {sub === "moat" && (
         <div className="space-y-6">
@@ -605,7 +646,7 @@ export default function CompetitiveTab() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-           TAB 4 — STRATEGIC ACTIONS
+           TAB 5 — STRATEGIC ACTIONS
          ══════════════════════════════════════════════════════════════════════ */}
       {sub === "actions" && (
         <div className="space-y-4">
